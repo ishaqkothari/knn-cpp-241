@@ -9,6 +9,8 @@
 
 using namespace std;
 
+#include "utils.h"
+
 template <typename T> double EuclideanDistance(const std::vector<T>& a, const std::vector<T>& b)
 {
 
