@@ -1,2 +1,2 @@
-# knn-cpp-241
-K nearest neighbors algorithm implemented in C++
+### K Nearest Neighbors
+# Nathan Englehart, Xuhang Cao, Samuel Topper, Ishaq Kothari
