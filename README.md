@@ -1,2 +1,2 @@
 # K Nearest Neighbors
-### Nathan Englehart, Xuhang Cao, Samuel Topper, Ishaq Kothari
+### Nathan Englehart, Xuhang Cao, Samuel Topper, Ishaq Kothari (Autumn 2021)
