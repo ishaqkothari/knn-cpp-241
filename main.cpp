@@ -9,8 +9,7 @@
 
 using namespace std;
 
-template <typename T>
-double EuclideanDistance(const std::vector<T>& a, const std::vector<T>& b)
+template <typename T> double EuclideanDistance(const std::vector<T>& a, const std::vector<T>& b)
 {
 
     /* Computes the Euclidean Distance between two vectors of the same feature length, a and b. */
@@ -25,8 +24,7 @@ double EuclideanDistance(const std::vector<T>& a, const std::vector<T>& b)
 	return std::sqrt(std::accumulate(ret.begin(), ret.end(), 0.0));
 } 
 
-template <typename T>
-double ManhattanDistance(const std::vector<T>& a, const std::vector<T>& b)
+template <typename T> double ManhattanDistance(const std::vector<T>& a, const std::vector<T>& b)
 {
 
     /* Computes the Manhattan Distance between two vectors of the same feature length, a and b. */
