@@ -40,6 +40,23 @@ double ManhattanDistance(Eigen::VectorXf a, Eigen::VectorXf b, int length)
 
 }
 
+double ChebyshevDistance(Eigen::VectorXf a, Eigen::VectorXf b, int length)
+{
+
+	/* Computes the Chebyshev Distance between two vector of the same feature length, a and b. */
+
+	Eigen::VectorXf ret(length);
+
+	for(int i = 0; i < length; i++)
+	{
+		ret(i) = abs(a.coeff(i) - b.coeff(i));
+	}
+
+	return ret.maxCoeff();
+
+}
+
+
 std::list<double> EuclideanDistances(Eigen::VectorXf vector, int vector_length, Eigen::MatrixXf X, int X_size)
 {
 
@@ -47,10 +64,11 @@ std::list<double> EuclideanDistances(Eigen::VectorXf vector, int vector_length, 
 
     std::list<double>distances = { };
     int count = 0;
+
     for(int i = 0; i < X_size; i++)
     {
         Eigen::VectorXf x = X.row(i);
-        distances.push_back (EuclideanDistance(vector,x,vector_length));
+        distances.push_back(EuclideanDistance(vector,x,vector_length));
     }
 
     return distances;
@@ -63,10 +81,28 @@ std::list<double> ManhattanDistances(Eigen::VectorXf vector, int vector_length, 
 
     std::list<double>distances = { };
     int count = 0;
+
     for(int i = 0; i < X_size; i++)
     {
         Eigen::VectorXf x = X.row(i);
-        distances.push_back (ManhattanDistance(vector,x,vector_length));
+        distances.push_back(ManhattanDistance(vector,x,vector_length));
+    }
+
+    return distances;
+}
+
+std::list<double> ChebyshevDistances(Eigen::VectorXf vector, int vector_length, Eigen::MatrixXf X, int X_size)
+{
+
+    /* Computes the Chebyshev Distances for one input vector to every training vector. */
+
+    std::list<double>distances = { };
+    int count = 0;
+
+    for(int i = 0; i < X_size; i++)
+    {
+        Eigen::VectorXf x = X.row(i);
+        distances.push_back(ChebyshevDistance(vector,x,vector_length));
     }
 
     return distances;
@@ -101,7 +137,8 @@ int main()
     std::cout << result << "\n";
     result = ManhattanDistance(v1,v2,length);
     std::cout << result << "\n";
-
+    result = ChebyshevDistance(v1,v2,length);
+    std::cout << result << "\n";
     std::list<double> distances = EuclideanDistances(v1,length,m1,size);
     for (auto v : distances)
         std::cout << v << "\n";
