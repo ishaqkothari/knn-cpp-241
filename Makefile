@@ -1,10 +1,10 @@
-TARGETS=main
+TARGETS=knn
 CC=g++ -std=c++11
 
 all: $(TARGETS)
 
-main: main.cpp
-	$(CC) -o main main.cpp
+knn: knn.cpp
+	$(CC) -o knn knn.cpp
 
 clean:
 	rm -rf $(TARGETS) *.o
