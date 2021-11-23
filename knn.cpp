@@ -1,9 +1,8 @@
 #include <iostream>
 #include <list>
 #include <cmath>
-#include <vector>
 #include <eigen3/Eigen/Dense>
-
+#include <cstdlib>
 
 double EuclideanDistance(Eigen::VectorXf a, Eigen::VectorXf b, int length)
 {
@@ -64,7 +63,6 @@ std::list<double> distances(Eigen::VectorXf vector, int vector_length, Eigen::Ma
     /* Computes the distances for one input vector to every point in matrix X vector where the last entry in each vector is its classification. */
  
     std::list<double>distances_list = { };
-    int count = 0;
 
     for(int i = 0; i < X_size; i++)
     {
@@ -75,34 +73,35 @@ std::list<double> distances(Eigen::VectorXf vector, int vector_length, Eigen::Ma
     return distances_list;
 }
 
-int plurality_class(std::list<int> class_list, int K)
+
+template <typename T> 
+T * to_array(std::list<T> list, int length)
+{
+
+    /* Returns the input list converted to an array. */
+
+    T * list_arr = (T *) malloc(sizeof(T) * (length-1));
+    std::copy(list.begin(), list.end(), list_arr); 
+    return list_arr;
+}
+
+
+int plurality_class(const std::list<int> &class_list, int K)
 {
 
     /* Calculates the most common classification in list containing K classifications. */
 
-
-    /* Convert classification list to array. */
-
-    int arr[K];
-    int idx = 0;
-
-    for(int const &i: class_list) 
-    {
-        arr[idx++] = i;
-    }
-
-    /* Find max occurence in classification array. */
-
-    int most_frequent = arr[0];
+    int * class_arr = to_array(class_list, K);
+    int most_frequent = class_arr[0];
     int max_count = 0;
 
     for (int i=0; i<K; i++)
     {
-        int count=1;
+        int count = 1;
 
         for (int j=i+1;j<K;j++)
         {
-            if (arr[i]==arr[j])
+            if (class_arr[i]==class_arr[j])
             {
                 count++;
             }
@@ -116,11 +115,11 @@ int plurality_class(std::list<int> class_list, int K)
 
     for (int i=0;i<K;i++)
     {
-        int count=1;
+        int count = 1;
 
         for (int j=i+1;j<K;j++)
         {
-            if (arr[i]==arr[j])
+            if (class_arr[i]==class_arr[j])
             {
                 count++;
             }
@@ -128,7 +127,7 @@ int plurality_class(std::list<int> class_list, int K)
 
         if (count==max_count)
         {
-            most_frequent = arr[i];
+            most_frequent = class_arr[i];
         }
     }
 
@@ -138,18 +137,17 @@ int plurality_class(std::list<int> class_list, int K)
 std::list<int> argpartition(std::list<double> list, int N)
 {
     
-    /* Returns an array of the N smallest indicies of a list. Based on the NumPy argpartition() function. */
+    /* Returns an array of the N smallest indicies of a list. */
 
     std::list<int> indicies;
 
-    int arr_size = list.size();
-    double list_arr[arr_size];
-    std::copy(list.begin(), list.end(), list_arr);  
-
     double mins [N];
+
+    double * list_arr = to_array(list, list.size());
+    int arr_size = list.size();
+
     double min = list_arr[0];
     int min_idx = 0;
-    int count = 0;
 
     for(int i = 0; i < N; i++)
     {
@@ -162,25 +160,27 @@ std::list<int> argpartition(std::list<double> list, int N)
             }
         } 
 
-        mins[count] = list_arr[min_idx];
+        mins[i] = list_arr[min_idx];
 
-        for (int i = min_idx; i < arr_size; ++i)
+        /* Remove min element and shrink array. */
+
+        for (int j = min_idx; j < arr_size; ++j)
         {
-            list_arr[i] = list_arr[i + 1];
+            list_arr[j] = list_arr[j + 1];
         }
 
         arr_size = arr_size - 1;
-        min = list_arr[0];
-        min_idx = 0;
-        count++;
-        
-    }
 
+        min = list_arr[0];
+        min_idx = 0;        
+    }
     
-    std::copy(list.begin(), list.end(), list_arr);
+    /* Reset array to original. */
+
+    list_arr = to_array(list, list.size()); 
 
     int visited [list.size()-1];
-    
+
     for(int i = 0; i < list.size(); i++)
     {
         visited[i] = 0;
@@ -266,6 +266,16 @@ std::list<int> knn(Eigen::MatrixXf input, Eigen::MatrixXf dataset, int dataset_s
 int main()
 {
 
+    std::list<int> list = { 1, 2, 3, 4, 5 };
+    int * list_arr;
+    list_arr = to_array(list, list.size());
+    std::cout << list_arr[0] << "\n";
+    std::cout << list_arr[1] << "\n";
+    std::cout << list_arr[2] << "\n";
+    std::cout << list_arr[3] << "\n";
+    std::cout << list_arr[4] << "\n";
+
+
     /* Testing */    
 
     int length = 4;
@@ -275,9 +285,16 @@ int main()
     Eigen::MatrixXf m1(size,length);
     Eigen::MatrixXf m2(size,length);
     
-    v1 << 2, 3, 4, 0;
+    v1 << 2, 
+          3, 
+          4, 
+          0;
 
-    v2 << 5, 9, 5, 0;
+    v2 << 5, 
+          9, 
+          5, 
+          0;
+
 
     /* Input Matrix */ 
 
@@ -287,6 +304,7 @@ int main()
           3, 2, 0, 1,
           1, 1, 1, 1,
           6, 5, 8, 1;
+
 
     /* Dataset Matrix */ 
 
@@ -300,7 +318,7 @@ int main()
     int K = 3;
     std::list<int> predictions = knn(m1, m2, size, K, &EuclideanDistance);
 
-    int count = 1;
+    int count = 0;
     for(auto v : predictions)
     {
         std::cout << "Classification: " << "Vector" << count << ": " << v << "\n";
