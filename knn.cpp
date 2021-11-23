@@ -1,7 +1,7 @@
 #include <iostream>
 #include <list>
 #include <cmath>
-#include <eigen3/Eigen/Dense>
+#include "eigen3/Eigen/Dense"
 #include <cstdlib>
 
 double EuclideanDistance(Eigen::VectorXf a, Eigen::VectorXf b, int length)
