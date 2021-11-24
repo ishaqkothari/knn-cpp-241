@@ -80,7 +80,7 @@ T * to_array(std::list<T> list, int length)
 
     /* Returns the input list converted to an array. */
 
-    T * list_arr = (T *) malloc(sizeof(T) * (length-1));
+    T * list_arr = (T *) malloc(sizeof(T) * (length));
     std::copy(list.begin(), list.end(), list_arr); 
     return list_arr;
 }
@@ -130,6 +130,8 @@ int plurality_class(const std::list<int> &class_list, int K)
             most_frequent = class_arr[i];
         }
     }
+    
+    free(class_arr);
 
     return most_frequent;
 }
@@ -198,6 +200,8 @@ std::list<int> argpartition(std::list<double> list, int N)
             }
         }
     }
+
+    free(list_arr);
 
     return indicies;
 }
@@ -268,7 +272,7 @@ int main()
 
     std::list<int> list = { 1, 2, 3, 4, 5 };
     int * list_arr;
-    list_arr = to_array(list, list.size()+1);
+    list_arr = to_array(list, list.size());
     std::cout << list_arr[0] << "\n";
     std::cout << list_arr[1] << "\n";
     std::cout << list_arr[2] << "\n";
@@ -314,7 +318,7 @@ int main()
           3, 2, 0, 1,
           1, 1, 1, 1,
           6, 5, 8, 1;
-    /*  
+      
     int K = 3;
     std::list<int> predictions = knn(m1, m2, size, K, &EuclideanDistance);
 
@@ -324,7 +328,7 @@ int main()
         std::cout << "Classification: " << "Vector" << count << ": " << v << "\n";
         count++;
     }
-    */
+    
     return 0;
 }
 
