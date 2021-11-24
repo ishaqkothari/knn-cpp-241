@@ -268,13 +268,13 @@ int main()
 
     std::list<int> list = { 1, 2, 3, 4, 5 };
     int * list_arr;
-    list_arr = to_array(list, list.size());
+    list_arr = to_array(list, list.size()+1);
     std::cout << list_arr[0] << "\n";
     std::cout << list_arr[1] << "\n";
     std::cout << list_arr[2] << "\n";
     std::cout << list_arr[3] << "\n";
     std::cout << list_arr[4] << "\n";
-
+    free(list_arr);
 
     /* Testing */    
 
@@ -314,7 +314,7 @@ int main()
           3, 2, 0, 1,
           1, 1, 1, 1,
           6, 5, 8, 1;
-  
+    /*  
     int K = 3;
     std::list<int> predictions = knn(m1, m2, size, K, &EuclideanDistance);
 
@@ -324,7 +324,7 @@ int main()
         std::cout << "Classification: " << "Vector" << count << ": " << v << "\n";
         count++;
     }
-
+    */
     return 0;
 }
 
