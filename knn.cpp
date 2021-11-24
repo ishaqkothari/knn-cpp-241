@@ -136,16 +136,30 @@ int plurality_class(const std::list<int> &class_list, int K)
     return most_frequent;
 }
 
+/* Consider changing type to T here. */
 std::list<int> argpartition(std::list<double> list, int N)
 {
     
     /* Returns an array of the N smallest indicies of a list. */
 
-    std::list<int> indicies;
+    
+    std::list<int> indicies = { };
+
+    if(list.size() == 0)
+    {
+	    return indicies;
+    }
+
+    if(list.size() < N)
+    {
+	    std::cout << "Error: N must be the same size of less than the size of list." << "\n";
+    }
+
 
     double mins [N];
 
-    double * list_arr = to_array(list, list.size());
+    double * list_arr;
+    list_arr  = to_array(list, 1+list.size());
     int arr_size = list.size();
 
     double min = list_arr[0];
@@ -179,9 +193,9 @@ std::list<int> argpartition(std::list<double> list, int N)
     
     /* Reset array to original. */
 
-    list_arr = to_array(list, list.size()); 
+    double * list_arr_copy = to_array(list, 1+list.size()); 
 
-    int visited [list.size()-1];
+    int visited [list.size()];
 
     for(int i = 0; i < list.size(); i++)
     {
@@ -192,7 +206,7 @@ std::list<int> argpartition(std::list<double> list, int N)
     {
         for(int j = 0; j < list.size(); j++)
         {
-            if(mins[i] == list_arr[j] && visited[j] == 0)
+            if(mins[i] == list_arr_copy[j] && visited[j] == 0)
             {
                 indicies.push_back(j);
                 visited[j] = 1;
@@ -202,6 +216,7 @@ std::list<int> argpartition(std::list<double> list, int N)
     }
 
     free(list_arr);
+    free(list_arr_copy);
 
     return indicies;
 }
@@ -243,8 +258,8 @@ std::list<int> knn(Eigen::MatrixXf input, Eigen::MatrixXf dataset, int dataset_s
 
         /* Find the indicies of the K smallest distances. */
 
-        std::list<int> k_smallest = argpartition(dists, K);
-        double k_smallest_arr[k_smallest.size()];
+	std::list<int> k_smallest = argpartition(dists, K);
+	double k_smallest_arr[k_smallest.size()];
         std::copy(k_smallest.begin(), k_smallest.end(), k_smallest_arr);
 
 
