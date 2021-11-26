@@ -61,27 +61,27 @@ std::list<double> distances(Eigen::VectorXf vector, int vector_length, Eigen::Ma
 {
 
     /* Computes the distances for one input vector to every point in matrix X vector where the last entry in each vector is its classification. */
- 
+
     std::list<double>distances_list = { };
 
     for(int i = 0; i < X_size; i++)
     {
         Eigen::VectorXf x = X.row(i);
-        distances_list.push_back(distance_function(vector.head(vector_length-1),x.head(vector_length-1),vector_length-1));
+        distances_list.push_back(distance_function(vector.tail(vector_length-1),x.tail(vector_length-1),vector_length-1));
     }
 
     return distances_list;
 }
 
 
-template <typename T> 
+template <typename T>
 T * to_array(std::list<T> list, int length)
 {
 
     /* Returns the input list converted to an array. */
 
     T * list_arr = (T *) malloc(sizeof(T) * (length));
-    std::copy(list.begin(), list.end(), list_arr); 
+    std::copy(list.begin(), list.end(), list_arr);
     return list_arr;
 }
 
@@ -130,7 +130,7 @@ int plurality_class(const std::list<int> &class_list, int K)
             most_frequent = class_arr[i];
         }
     }
-    
+
     free(class_arr);
 
     return most_frequent;
@@ -139,10 +139,10 @@ int plurality_class(const std::list<int> &class_list, int K)
 /* Consider changing type to T here. */
 std::list<int> argpartition(std::list<double> list, int N)
 {
-    
+
     /* Returns an array of the N smallest indicies of a list. */
 
-    
+
     std::list<int> indicies = { };
 
     if(list.size() == 0)
@@ -174,7 +174,7 @@ std::list<int> argpartition(std::list<double> list, int N)
                 min = list_arr[j];
                 min_idx = j;
             }
-        } 
+        }
 
         mins[i] = list_arr[min_idx];
 
@@ -188,12 +188,12 @@ std::list<int> argpartition(std::list<double> list, int N)
         arr_size = arr_size - 1;
 
         min = list_arr[0];
-        min_idx = 0;        
+        min_idx = 0;
     }
-    
+
     /* Reset array to original. */
 
-    double * list_arr_copy = to_array(list, 1+list.size()); 
+    double * list_arr_copy = to_array(list, 1+list.size());
 
     int visited [list.size()];
 
@@ -201,7 +201,7 @@ std::list<int> argpartition(std::list<double> list, int N)
     {
         visited[i] = 0;
     }
-    
+
     for(int i = 0; i < N; i++)
     {
         for(int j = 0; j < list.size(); j++)
@@ -258,8 +258,8 @@ std::list<int> knn(Eigen::MatrixXf input, Eigen::MatrixXf dataset, int dataset_s
 
         /* Find the indicies of the K smallest distances. */
 
-	std::list<int> k_smallest = argpartition(dists, K);
-	double k_smallest_arr[k_smallest.size()];
+      	std::list<int> k_smallest = argpartition(dists, K);
+      	double k_smallest_arr[k_smallest.size()];
         std::copy(k_smallest.begin(), k_smallest.end(), k_smallest_arr);
 
 
@@ -270,7 +270,7 @@ std::list<int> knn(Eigen::MatrixXf input, Eigen::MatrixXf dataset, int dataset_s
         for(int j = 0; j < K; j++)
         {
             Eigen::VectorXf k_closest_vector = dataset.row(k_smallest_arr[j]);
-            labels.push_back(k_closest_vector.coeff(k_closest_vector.size()-1));
+            labels.push_back(k_closest_vector.coeff(0));
         }
 
         int classification = plurality_class(labels, K);
@@ -295,7 +295,7 @@ int main()
     std::cout << list_arr[4] << "\n";
     free(list_arr);
 
-    /* Testing */    
+    /* Testing */
 
     int length = 4;
     int size = 6;
@@ -303,37 +303,36 @@ int main()
     Eigen::VectorXf v2(length);
     Eigen::MatrixXf m1(size,length);
     Eigen::MatrixXf m2(size,length);
-    
-    v1 << 2, 
-          3, 
-          4, 
+
+    v1 << 2,
+          3,
+          4,
           0;
 
-    v2 << 5, 
-          9, 
-          5, 
+    v2 << 5,
+          9,
+          5,
           0;
 
 
-    /* Input Matrix */ 
+    /* Input Matrix */
 
-    m1 << 5, 6, 7, 1,
-          8, 9, 3, 1,
-          4, 7, 4, 1,
-          3, 2, 0, 1,
+    m1 << 1, 5, 6, 7,
+          1, 8, 9, 3,
+          1, 4, 7, 4,
+          1, 3, 2, 0,
+          0, 1, 1, 1,
+          0, 6, 5, 8;
+
+    /* Dataset Matrix */
+
+    m2 << 1, 5, 6, 7,
+          0, 8, 9, 3,
+          1, 4, 7, 4,
+          1, 3, 2, 0,
           1, 1, 1, 1,
-          6, 5, 8, 1;
+          1, 6, 5, 8;
 
-
-    /* Dataset Matrix */ 
-
-    m2 << 5, 6, 7, 0,
-          8, 9, 3, 0,
-          4, 7, 4, 1,
-          3, 2, 0, 1,
-          1, 1, 1, 1,
-          6, 5, 8, 1;
-      
     int K = 3;
     std::list<int> predictions = knn(m1, m2, size, K, &EuclideanDistance);
 
@@ -343,7 +342,6 @@ int main()
         std::cout << "Classification: " << "Vector" << count << ": " << v << "\n";
         count++;
     }
-    
+
     return 0;
 }
-
