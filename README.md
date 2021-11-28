@@ -1,6 +1,6 @@
 # K Nearest Neighbors Classifier Algorithm
 
-## Author
+## Authors
 Nathan Englehart, Xuhang Cao, Samuel Topper, Ishaq Kothari (Autumn 2021)
 
 ## References
