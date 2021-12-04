@@ -3,6 +3,9 @@
 ## Authors
 Nathan Englehart, Xuhang Cao, Samuel Topper, Ishaq Kothari (Autumn 2021)
 
+## Notes
+This is currently a work in progress.
+
 ## References
 David Barber, [Bayesian Reasoning and Machine Learning](http://web4.cs.ucl.ac.uk/staff/D.Barber/textbook/171216.pdf), 2016. (pp. 313-317) <br>
 
