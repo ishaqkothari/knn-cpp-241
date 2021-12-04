@@ -12,7 +12,6 @@ template<typename T> T load_csv (const std::string & sys_path)
 
   /* Returns csv file input as an Eigen matrix or vector. */
 
-
   std::ifstream in;
   in.open(sys_path);
   std::string line;
@@ -35,7 +34,6 @@ double EuclideanDistance(Eigen::VectorXd a, Eigen::VectorXd b, int length)
 
     /* Returns the Euclidean Distance between two vectors of the same feature length, a and b. */
 
-
     double sum = 0;
 
     for(int i = 0; i < length; i++)
@@ -50,7 +48,6 @@ double ManhattanDistance(Eigen::VectorXd a, Eigen::VectorXd b, int length)
 {
 
     /* Returns the Manhattan Distance between two vectors of the same feature length, a and b. */
-
 
     double sum = 0;
 
@@ -68,7 +65,6 @@ double ChebyshevDistance(Eigen::VectorXd a, Eigen::VectorXd b, int length)
 
 	/* Returns the Chebyshev Distance between two vector of the same feature length, a and b. */
 
-
 	Eigen::VectorXd ret(length);
 
 	for(int i = 0; i < length; i++)
@@ -84,7 +80,6 @@ std::vector<double> distances(Eigen::VectorXd vector, int vector_length, Eigen::
 {
 
     /* Returns the distances for one input vector to every point in matrix X vector where the last entry in each vector is its classification. */
-
 
     std::vector<double>distances_list = { };
 
@@ -103,7 +98,6 @@ template <typename T> T * to_array(std::vector<T> list, int length)
 
     /* Returns the input vector, list, converted to an array. */
 
-
     T * array = (T *) malloc(sizeof(T) * (length));
     std::copy(list.begin(), list.end(), array);
     return array;
@@ -113,7 +107,6 @@ int plurality_class(std::vector<int> &classifications)
 {
 
     /* Returns the most common classification in vector. */
-
 
     if (classifications.empty())
     {
@@ -158,7 +151,6 @@ std::vector<int> argpartition(std::vector<double> list, int N)
 {
 
     /* Returns an array of the N smallest indicies of a list with numerical entries. */
-
 
     std::vector<int> indicies = { };
 
