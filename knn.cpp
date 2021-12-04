@@ -1,31 +1,49 @@
 #include <iostream>
-#include <list>
+#include <vector>
 #include <cmath>
 #include "eigen3/Eigen/Dense"
 #include <cstdlib>
+#include <map>
+#include <fstream>
+#include <algorithm>
 
-double EuclideanDistance(Eigen::VectorXf a, Eigen::VectorXf b, int length)
+template<typename T> T load_csv (const std::string & sys_path)
+{
+
+  /* Loads csv file to Eigen matrix or vector. */
+
+  std::ifstream in;
+  in.open(sys_path);
+  std::string line;
+  std::vector<double> values;
+  uint rows = 0;
+  while (std::getline(in, line)) {
+      std::stringstream lineStream(line);
+      std::string cell;
+      while (std::getline(lineStream, cell, ',')) {
+          values.push_back(std::stod(cell));
+      }
+      rows = rows + 1;
+  }
+  return Eigen::Map<const Eigen::Matrix<typename T::Scalar, T::RowsAtCompileTime, T::ColsAtCompileTime, Eigen::RowMajor>>(values.data(), rows, values.size()/rows);
+}
+
+double EuclideanDistance(Eigen::VectorXd a, Eigen::VectorXd b, int length)
 {
 
     /* Computes the Euclidean Distance between two vectors of the same feature length, a and b. */
 
     double sum = 0;
-    Eigen::VectorXf ret(length);
 
     for(int i = 0; i < length; i++)
     {
-        ret(i) = pow(a.coeff(i) - b.coeff(i),2);
-    }
-
-    for(int i = 0; i < length; i++)
-    {
-        sum = sum + ret(i);
+        sum += pow(a.coeff(i) - b.coeff(i),2);
     }
 
     return sqrt(sum);
 }
 
-double ManhattanDistance(Eigen::VectorXf a, Eigen::VectorXf b, int length)
+double ManhattanDistance(Eigen::VectorXd a, Eigen::VectorXd b, int length)
 {
 
     /* Computes the Manhattan Distance between two vectors of the same feature length, a and b. */
@@ -41,12 +59,12 @@ double ManhattanDistance(Eigen::VectorXf a, Eigen::VectorXf b, int length)
 
 }
 
-double ChebyshevDistance(Eigen::VectorXf a, Eigen::VectorXf b, int length)
+double ChebyshevDistance(Eigen::VectorXd a, Eigen::VectorXd b, int length)
 {
 
 	/* Computes the Chebyshev Distance between two vector of the same feature length, a and b. */
 
-	Eigen::VectorXf ret(length);
+	Eigen::VectorXd ret(length);
 
 	for(int i = 0; i < length; i++)
 	{
@@ -57,16 +75,16 @@ double ChebyshevDistance(Eigen::VectorXf a, Eigen::VectorXf b, int length)
 
 }
 
-std::list<double> distances(Eigen::VectorXf vector, int vector_length, Eigen::MatrixXf X, int X_size, double (*distance_function) (Eigen::VectorXf a, Eigen::VectorXf b, int length))
+std::vector<double> distances(Eigen::VectorXd vector, int vector_length, Eigen::MatrixXd X, int X_size, double (*distance_function) (Eigen::VectorXd a, Eigen::VectorXd b, int length))
 {
 
     /* Computes the distances for one input vector to every point in matrix X vector where the last entry in each vector is its classification. */
 
-    std::list<double>distances_list = { };
+    std::vector<double>distances_list = { };
 
     for(int i = 0; i < X_size; i++)
     {
-        Eigen::VectorXf x = X.row(i);
+        Eigen::VectorXd x = X.row(i);
         distances_list.push_back(distance_function(vector.tail(vector_length-1),x.tail(vector_length-1),vector_length-1));
     }
 
@@ -75,18 +93,18 @@ std::list<double> distances(Eigen::VectorXf vector, int vector_length, Eigen::Ma
 
 
 template <typename T>
-T * to_array(std::list<T> list, int length)
+T * to_array(std::vector<T> list, int length)
 {
 
-    /* Returns the input list converted to an array. */
+    /* Returns the input vector converted to an array. */
 
-    T * list_arr = (T *) malloc(sizeof(T) * (length));
-    std::copy(list.begin(), list.end(), list_arr);
-    return list_arr;
+    T * array = (T *) malloc(sizeof(T) * (length));
+    std::copy(list.begin(), list.end(), array);
+    return array;
 }
 
 
-int plurality_class(const std::list<int> &class_list, int K)
+int plurality_class(const std::vector<int> &class_list, int K)
 {
 
     /* Calculates the most common classification in list containing K classifications. */
@@ -136,14 +154,13 @@ int plurality_class(const std::list<int> &class_list, int K)
     return most_frequent;
 }
 
-/* Consider changing type to T here. */
-std::list<int> argpartition(std::list<double> list, int N)
+std::vector<int> argpartition(std::vector<double> list, int N)
 {
 
-    /* Returns an array of the N smallest indicies of a list. */
+    /* Returns an array of the N smallest indicies of a list with numerical entries. */
 
 
-    std::list<int> indicies = { };
+    std::vector<int> indicies = { };
 
     if(list.size() == 0)
     {
@@ -221,44 +238,29 @@ std::list<int> argpartition(std::list<double> list, int N)
     return indicies;
 }
 
-std::list<int> knn(Eigen::MatrixXf input, Eigen::MatrixXf dataset, int dataset_size, int K, double (*distance_function) (Eigen::VectorXf a, Eigen::VectorXf b, int length))
+std::vector<int> knn(Eigen::MatrixXd input, int input_size, Eigen::MatrixXd dataset, int dataset_size, int K, double (*distance_function) (Eigen::VectorXd a, Eigen::VectorXd b, int length))
 {
 
     /* Classifies all instances of one dataset using another dataset. */
 
 
-    std::list<int> predictions = { };
+    std::vector<int> predictions = { };
 
-
-    /* Error Catching */
-
-    if(K > dataset_size)
-    {
-        std::cout << "K must not be greater than the size of your dataset of size " << dataset_size << "\n";
-        return predictions;
-    }
-
-    if(K <= 0)
-    {
-        std::cout << "K must be greater than 0.\n";
-        return predictions;
-    }
-
-    for(int i = 0; i < dataset_size; i++)
+    for(int i = 0; i < input_size; i++)
     {
 
-        std::list<int> k_smallest_classifications = { };
+        /* Compute the distances from one input vector to all vectors in dataset and store the classifications of the K smallest vectors. */
 
 
-        /* Compute the distances from one input vector to all points in dataset. */
+        std::vector<int> k_smallest_classifications = { };
 
-        Eigen::VectorXf x = input.row(i);
-        std::list<double> dists = distances(x,x.size()-1,dataset,dataset_size,*&distance_function);
+        Eigen::VectorXd x = input.row(i);
+        std::vector<double> dists = distances(x,x.size()-1,dataset,dataset_size,*&distance_function);
 
 
         /* Find the indicies of the K smallest distances. */
 
-      	std::list<int> k_smallest = argpartition(dists, K);
+      	std::vector<int> k_smallest = argpartition(dists, K);
       	double k_smallest_arr[k_smallest.size()];
         std::copy(k_smallest.begin(), k_smallest.end(), k_smallest_arr);
 
@@ -266,10 +268,10 @@ std::list<int> knn(Eigen::MatrixXf input, Eigen::MatrixXf dataset, int dataset_s
         /* Create list of labels of K shortest distances. */
 
         int counter = 0;
-        std::list<int> labels = { };
+        std::vector<int> labels = { };
         for(int j = 0; j < K; j++)
         {
-            Eigen::VectorXf k_closest_vector = dataset.row(k_smallest_arr[j]);
+            Eigen::VectorXd k_closest_vector = dataset.row(k_smallest_arr[j]);
             labels.push_back(k_closest_vector.coeff(0));
         }
 
@@ -280,68 +282,49 @@ std::list<int> knn(Eigen::MatrixXf input, Eigen::MatrixXf dataset, int dataset_s
     return predictions;
 }
 
+void driver(std::string sys_path_test, std::string sys_path_train, int K, double (*distance_function) (Eigen::VectorXd a, Eigen::VectorXd b, int length), bool verbose)
+{
 
+  /* Driver for a k nearest neighbors classifier. */
+
+  Eigen::MatrixXd test = load_csv<Eigen::MatrixXd>(sys_path_test);
+
+  if(verbose == true)
+  {
+      std::cout << "Test Data: " << sys_path_test << "\n";
+      std::cout << test << "\n\n";
+  }
+
+  Eigen::MatrixXd train = load_csv<Eigen::MatrixXd>(sys_path_train);
+
+  if(verbose == true)
+  {
+      std::cout << "Train Data: " << sys_path_train << "\n";
+      std::cout << train << "\n\n";
+  }
+
+  std::vector<int> predictions = knn(test, test.rows(), train, train.rows(), K, *&distance_function);
+
+  if(verbose == true)
+  {
+    int count = 0;
+    for(auto v : predictions)
+    {
+        std::cout << "Vector " << count << " Classification = " << v << "\n";
+        count++;
+    }
+    std::cout << "\n";
+  }
+}
 
 int main()
 {
 
-    std::list<int> list = { 1, 2, 3, 4, 5 };
-    int * list_arr;
-    list_arr = to_array(list, list.size());
-    std::cout << list_arr[0] << "\n";
-    std::cout << list_arr[1] << "\n";
-    std::cout << list_arr[2] << "\n";
-    std::cout << list_arr[3] << "\n";
-    std::cout << list_arr[4] << "\n";
-    free(list_arr);
-
-    /* Testing */
-
-    int length = 4;
-    int size = 6;
-    Eigen::VectorXf v1(length);
-    Eigen::VectorXf v2(length);
-    Eigen::MatrixXf m1(size,length);
-    Eigen::MatrixXf m2(size,length);
-
-    v1 << 2,
-          3,
-          4,
-          0;
-
-    v2 << 5,
-          9,
-          5,
-          0;
-
-
-    /* Input Matrix */
-
-    m1 << 1, 5, 6, 7,
-          1, 8, 9, 3,
-          1, 4, 7, 4,
-          1, 3, 2, 0,
-          0, 1, 1, 1,
-          0, 6, 5, 8;
-
-    /* Dataset Matrix */
-
-    m2 << 1, 5, 6, 7,
-          0, 8, 9, 3,
-          1, 4, 7, 4,
-          1, 3, 2, 0,
-          1, 1, 1, 1,
-          1, 6, 5, 8;
-
-    int K = 3;
-    std::list<int> predictions = knn(m1, m2, size, K, &EuclideanDistance);
-
-    int count = 0;
-    for(auto v : predictions)
-    {
-        std::cout << "Classification: " << "Vector" << count << ": " << v << "\n";
-        count++;
-    }
+    //driver("./data/S1test.csv", "./data/S1train.csv", 131, &EuclideanDistance, true);
+    //driver("./data/S2test.csv", "./data/S2train.csv", 85, &EuclideanDistance, true);
+    driver("./data/iristest.csv", "./data/iris.csv", 5, &ManhattanDistance, true);
+    driver("./data/iristest.csv", "./data/iris.csv", 5, &ChebyshevDistance, true);
+    driver("./data/iristest.csv", "./data/iris.csv", 5, &EuclideanDistance, true);
 
     return 0;
 }
