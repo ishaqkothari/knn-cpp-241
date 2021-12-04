@@ -2,15 +2,16 @@
 #include <vector>
 #include <cmath>
 #include "eigen3/Eigen/Dense"
-#include <cstdlib>
-#include <map>
 #include <fstream>
 #include <algorithm>
+
+/* Nathan Englehart, Xuhang Cao, Samuel Topper, Ishaq Kothari (Autumn 2021) */
 
 template<typename T> T load_csv (const std::string & sys_path)
 {
 
-  /* Loads csv file to Eigen matrix or vector. */
+  /* Returns csv file input as an Eigen matrix or vector. */
+
 
   std::ifstream in;
   in.open(sys_path);
@@ -25,13 +26,15 @@ template<typename T> T load_csv (const std::string & sys_path)
       }
       rows = rows + 1;
   }
+
   return Eigen::Map<const Eigen::Matrix<typename T::Scalar, T::RowsAtCompileTime, T::ColsAtCompileTime, Eigen::RowMajor>>(values.data(), rows, values.size()/rows);
 }
 
 double EuclideanDistance(Eigen::VectorXd a, Eigen::VectorXd b, int length)
 {
 
-    /* Computes the Euclidean Distance between two vectors of the same feature length, a and b. */
+    /* Returns the Euclidean Distance between two vectors of the same feature length, a and b. */
+
 
     double sum = 0;
 
@@ -46,7 +49,8 @@ double EuclideanDistance(Eigen::VectorXd a, Eigen::VectorXd b, int length)
 double ManhattanDistance(Eigen::VectorXd a, Eigen::VectorXd b, int length)
 {
 
-    /* Computes the Manhattan Distance between two vectors of the same feature length, a and b. */
+    /* Returns the Manhattan Distance between two vectors of the same feature length, a and b. */
+
 
     double sum = 0;
 
@@ -62,7 +66,8 @@ double ManhattanDistance(Eigen::VectorXd a, Eigen::VectorXd b, int length)
 double ChebyshevDistance(Eigen::VectorXd a, Eigen::VectorXd b, int length)
 {
 
-	/* Computes the Chebyshev Distance between two vector of the same feature length, a and b. */
+	/* Returns the Chebyshev Distance between two vector of the same feature length, a and b. */
+
 
 	Eigen::VectorXd ret(length);
 
@@ -78,7 +83,8 @@ double ChebyshevDistance(Eigen::VectorXd a, Eigen::VectorXd b, int length)
 std::vector<double> distances(Eigen::VectorXd vector, int vector_length, Eigen::MatrixXd X, int X_size, double (*distance_function) (Eigen::VectorXd a, Eigen::VectorXd b, int length))
 {
 
-    /* Computes the distances for one input vector to every point in matrix X vector where the last entry in each vector is its classification. */
+    /* Returns the distances for one input vector to every point in matrix X vector where the last entry in each vector is its classification. */
+
 
     std::vector<double>distances_list = { };
 
@@ -92,64 +98,58 @@ std::vector<double> distances(Eigen::VectorXd vector, int vector_length, Eigen::
 }
 
 
-template <typename T>
-T * to_array(std::vector<T> list, int length)
+template <typename T> T * to_array(std::vector<T> list, int length)
 {
 
-    /* Returns the input vector converted to an array. */
+    /* Returns the input vector, list, converted to an array. */
+
 
     T * array = (T *) malloc(sizeof(T) * (length));
     std::copy(list.begin(), list.end(), array);
     return array;
 }
 
-
-int plurality_class(const std::vector<int> &class_list, int K)
+int plurality_class(std::vector<int> &classifications)
 {
 
-    /* Calculates the most common classification in list containing K classifications. */
+    /* Returns the most common classification in vector. */
 
-    int * class_arr = to_array(class_list, K);
-    int most_frequent = class_arr[0];
-    int max_count = 0;
 
-    for (int i=0; i<K; i++)
+    if (classifications.empty())
     {
-        int count = 1;
+        return -1;
+    }
 
-        for (int j=i+1;j<K;j++)
+    sort(classifications.begin(), classifications.end());
+
+    auto last = classifications.front();
+    auto most_frequent = classifications.front();
+
+    int max_frequency = 0;
+    int current_frequency = 0;
+
+    for (const auto &i : classifications)
+    {
+        if (i == last)
         {
-            if (class_arr[i]==class_arr[j])
+            ++current_frequency;
+        } else {
+            if (current_frequency > max_frequency)
             {
-                count++;
+                max_frequency = current_frequency;
+                most_frequent = last;
             }
-        }
 
-        if (count>max_count)
-        {
-            max_count = count;
+            last = i;
+            current_frequency = 1;
         }
     }
 
-    for (int i=0;i<K;i++)
+    if (current_frequency > max_frequency)
     {
-        int count = 1;
-
-        for (int j=i+1;j<K;j++)
-        {
-            if (class_arr[i]==class_arr[j])
-            {
-                count++;
-            }
-        }
-
-        if (count==max_count)
-        {
-            most_frequent = class_arr[i];
-        }
+        max_frequency = current_frequency;
+        most_frequent = last;
     }
-
-    free(class_arr);
 
     return most_frequent;
 }
@@ -167,16 +167,10 @@ std::vector<int> argpartition(std::vector<double> list, int N)
 	    return indicies;
     }
 
-    if(list.size() < N)
-    {
-	    std::cout << "Error: N must be the same size of less than the size of list." << "\n";
-    }
-
-
     double mins [N];
 
     double * list_arr;
-    list_arr  = to_array(list, 1+list.size());
+    list_arr = to_array(list, 1 + list.size());
     int arr_size = list.size();
 
     double min = list_arr[0];
@@ -195,9 +189,7 @@ std::vector<int> argpartition(std::vector<double> list, int N)
 
         mins[i] = list_arr[min_idx];
 
-        /* Remove min element and shrink array. */
-
-        for (int j = min_idx; j < arr_size; ++j)
+        for (int j = min_idx; j < arr_size; ++j) // Remove min element and shrink array.
         {
             list_arr[j] = list_arr[j + 1];
         }
@@ -208,9 +200,7 @@ std::vector<int> argpartition(std::vector<double> list, int N)
         min_idx = 0;
     }
 
-    /* Reset array to original. */
-
-    double * list_arr_copy = to_array(list, 1+list.size());
+    double * list_arr_copy = to_array(list, 1+list.size()); // Reset array to original.
 
     int visited [list.size()];
 
@@ -238,44 +228,33 @@ std::vector<int> argpartition(std::vector<double> list, int N)
     return indicies;
 }
 
-std::vector<int> knn(Eigen::MatrixXd input, int input_size, Eigen::MatrixXd dataset, int dataset_size, int K, double (*distance_function) (Eigen::VectorXd a, Eigen::VectorXd b, int length))
+std::vector<int> knn(Eigen::MatrixXd M1, int M1_size, Eigen::MatrixXd M2, int M2_size, int K, double (*distance_function) (Eigen::VectorXd a, Eigen::VectorXd b, int length))
 {
 
-    /* Classifies all instances of one dataset using another dataset. */
-
+    /* Returns classifications of all instances in one dataset, M1, using another dataset, M2. */
 
     std::vector<int> predictions = { };
 
-    for(int i = 0; i < input_size; i++)
+    for(int i = 0; i < M1_size; i++) // Computes the distances from one M1 row, x, to all vectors in M2 and store the classifications of the K smallest vectors.
     {
-
-        /* Compute the distances from one input vector to all vectors in dataset and store the classifications of the K smallest vectors. */
-
-
         std::vector<int> k_smallest_classifications = { };
 
-        Eigen::VectorXd x = input.row(i);
-        std::vector<double> dists = distances(x,x.size()-1,dataset,dataset_size,*&distance_function);
+        Eigen::VectorXd x = M1.row(i);
+        std::vector<double> dists = distances(x,x.size()-1,M2,M2_size,*&distance_function);
 
-
-        /* Find the indicies of the K smallest distances. */
-
-      	std::vector<int> k_smallest = argpartition(dists, K);
+      	std::vector<int> k_smallest = argpartition(dists, K); // Find the indicies of the K smallest distances
       	double k_smallest_arr[k_smallest.size()];
         std::copy(k_smallest.begin(), k_smallest.end(), k_smallest_arr);
 
+        std::vector<int> labels = { }; // Create list of labels of K shortest distances.
 
-        /* Create list of labels of K shortest distances. */
-
-        int counter = 0;
-        std::vector<int> labels = { };
         for(int j = 0; j < K; j++)
         {
-            Eigen::VectorXd k_closest_vector = dataset.row(k_smallest_arr[j]);
+            Eigen::VectorXd k_closest_vector = M2.row(k_smallest_arr[j]);
             labels.push_back(k_closest_vector.coeff(0));
         }
 
-        int classification = plurality_class(labels, K);
+        int classification = plurality_class(labels); // Find the most commonly occuring label in list
         predictions.push_back(classification);
     }
 
@@ -320,11 +299,15 @@ void driver(std::string sys_path_test, std::string sys_path_train, int K, double
 int main()
 {
 
+    /* [Iris-virginica] => 0 [Iris-setosa] => 1 [Iris-versicolor] => 2 */
+
+    driver("./data/iristest.csv", "./data/iris.csv", 11, &ManhattanDistance, true);
+    driver("./data/iristest.csv", "./data/iris.csv", 11, &ChebyshevDistance, true);
+    driver("./data/iristest.csv", "./data/iris.csv", 11, &EuclideanDistance, true);
+
     //driver("./data/S1test.csv", "./data/S1train.csv", 131, &EuclideanDistance, true);
     //driver("./data/S2test.csv", "./data/S2train.csv", 85, &EuclideanDistance, true);
-    driver("./data/iristest.csv", "./data/iris.csv", 5, &ManhattanDistance, true);
-    driver("./data/iristest.csv", "./data/iris.csv", 5, &ChebyshevDistance, true);
-    driver("./data/iristest.csv", "./data/iris.csv", 5, &EuclideanDistance, true);
+
 
     return 0;
 }
