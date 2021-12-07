@@ -11,10 +11,9 @@ git clone git@github.com:nathanenglehart/knn-cpp-241.git
 cd knn-cpp-241
 make
 ```
-Note that we are currently including the eigen3 linear algebra library folder within this program.
 
 ## Notes
-This is currently a work in progress.
+This is currently a work in progress. We are currently including the eigen3 linear algebra library folder within this program.
 
 ## References
 David Barber, [Bayesian Reasoning and Machine Learning](http://web4.cs.ucl.ac.uk/staff/D.Barber/textbook/171216.pdf), 2016. (pp. 313-317) <br>
