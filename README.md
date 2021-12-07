@@ -4,13 +4,12 @@
 Nathan Englehart, Xuhang Cao, Samuel Topper, Ishaq Kothari (Autumn 2021)
 
 ## Usage
-To clone and run this classifier on a dataset, please run the following. 
+To clone and run this classifier so that it can be run on a dataset, please run the following. 
 
 ```
 git clone git@github.com:nathanenglehart/knn-cpp-241.git
 cd knn-cpp-241
 make
-./main
 ```
 
 ## Notes
