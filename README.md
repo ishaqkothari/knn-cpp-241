@@ -11,7 +11,6 @@ git clone git@github.com:nathanenglehart/knn-cpp-241.git
 cd knn-cpp-241
 make
 ```
-
 ## Notes
 This is currently a work in progress.
 
