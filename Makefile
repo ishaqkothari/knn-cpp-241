@@ -7,10 +7,10 @@ all: $(TARGETS)
 main: utils.o knn.o main.o
 	$(CXX) $(INC) utils.o knn.o main.o -o main
 
-knn.o: utils.o knn.cpp
+knn.o: utils.o includes/knn.h knn.cpp
 	$(CXX) $(INC) -c knn.cpp
 
-utils.o: includes/utils.hpp utils.cpp
+utils.o: includes/utils.h utils.cpp
 	$(CXX) $(INC) -c utils.cpp
 
 clean:

@@ -5,7 +5,7 @@
 #include "includes/eigen3/Eigen/Dense"
 #include <fstream>
 #include <algorithm>
-#include "includes/utils.hpp"
+#include "includes/utils.h"
 
 /* Nathan Englehart, Xuhang Cao, Samuel Topper, Ishaq Kothari (Autumn 2021) */
 
