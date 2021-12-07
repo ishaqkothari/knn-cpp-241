@@ -9,6 +9,8 @@
 #include <algorithm>
 #include "eigen3/Eigen/Geometry"
 
+template <typename T> T * to_array(std::vector<T>, int);
 int plurality_class(std::vector<int> &);
+std::vector<int> argpartition(std::vector<double>, int);
 
 #endif
