@@ -4,13 +4,15 @@
 Nathan Englehart, Xuhang Cao, Samuel Topper, Ishaq Kothari (Autumn 2021)
 
 ## Usage
-To clone and run this classifier so that it can be run on a dataset, please run the following. Note that we are currently including the eigen3 linear algebra library folder within this program.
+To clone and run this classifier so that it can be run on a dataset, please run the following. 
 
 ```
 git clone git@github.com:nathanenglehart/knn-cpp-241.git
 cd knn-cpp-241
 make
 ```
+Note that we are currently including the eigen3 linear algebra library folder within this program.
+
 ## Notes
 This is currently a work in progress.
 
