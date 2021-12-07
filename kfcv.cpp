@@ -1,6 +1,6 @@
 #include <iostream>
 #include <vector>
-#include "eigen3/Eigen/Dense"
+#include "includes/eigen3/Eigen/Dense"
 #include <iterator>
 
 /* Nathan Englehart, Xuhang Cao, Samuel Topper, Ishaq Kothari (Autumn 2021) */

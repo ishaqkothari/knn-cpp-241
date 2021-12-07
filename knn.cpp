@@ -2,10 +2,10 @@
 #include <iostream>
 #include <vector>
 #include <cmath>
-#include "eigen3/Eigen/Dense"
+#include "includes/eigen3/Eigen/Dense"
 #include <fstream>
 #include <algorithm>
-#include "utils.hpp"
+#include "includes/utils.hpp"
 
 /* Nathan Englehart, Xuhang Cao, Samuel Topper, Ishaq Kothari (Autumn 2021) */
 
