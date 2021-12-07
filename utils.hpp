@@ -9,8 +9,10 @@
 #include <algorithm>
 #include "eigen3/Eigen/Geometry"
 
+/* Nathan Englehart, Xuhang Cao, Samuel Topper, Ishaq Kothari (Autumn 2021) */
+
+
 template <typename T> T * to_array(std::vector<T>, int);
-int plurality_class(std::vector<int> &);
 std::vector<int> argpartition(std::vector<double>, int);
 
 #endif

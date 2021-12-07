@@ -9,6 +9,7 @@
 
 /* Nathan Englehart, Xuhang Cao, Samuel Topper, Ishaq Kothari (Autumn 2021) */
 
+
 template <typename T> T * to_array(std::vector<T> list, int length)
 {
 
@@ -18,51 +19,6 @@ template <typename T> T * to_array(std::vector<T> list, int length)
     std::copy(list.begin(), list.end(), array);
     return array;
 }
-
-int plurality_class(std::vector<int> &classifications)
-{
-
-    /* Returns the most common classification in vector. */
-
-    if (classifications.empty())
-    {
-        return -1;
-    }
-
-    sort(classifications.begin(), classifications.end());
-
-    auto last = classifications.front();
-    auto most_frequent = classifications.front();
-
-    int max_frequency = 0;
-    int current_frequency = 0;
-
-    for (const auto &i : classifications)
-    {
-        if (i == last)
-        {
-            ++current_frequency;
-        } else {
-            if (current_frequency > max_frequency)
-            {
-                max_frequency = current_frequency;
-                most_frequent = last;
-            }
-
-            last = i;
-            current_frequency = 1;
-        }
-    }
-
-    if (current_frequency > max_frequency)
-    {
-        max_frequency = current_frequency;
-        most_frequent = last;
-    }
-
-    return most_frequent;
-}
-
 
 std::vector<int> argpartition(std::vector<double> list, int N)
 {

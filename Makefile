@@ -1,10 +1,10 @@
-TARGETS=knn
+TARGETS=main
 CXX=g++ -std=c++11
 
 all: $(TARGETS)
 
-knn: utils.hpp utils.o knn.o
-	$(CXX) utils.o knn.o -o knn
+main: utils.hpp utils.o knn.o main.o
+	$(CXX) utils.o knn.o main.o -o main
 
 knn.o: utils.hpp knn.cpp
 	$(CXX) -c knn.cpp
