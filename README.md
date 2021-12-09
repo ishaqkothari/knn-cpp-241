@@ -12,8 +12,25 @@ cd knn-cpp-241
 make
 ```
 
+The program is meant to be run as the below, where train and test are the paths to the train and test csv files.
+
+```
+./knn-cli [train] [test] [options...]
+```
+
+For a help menu, please run:
+
+```
+./knn-cli -h
+```
+
+To run this program in verbose mode, please run:
+
+```
+./knn-cli [train] [test] -v 
+```
 ## Notes
-This is currently a work in progress. We are currently including the eigen3 linear algebra library folder within this program.
+This is currently a work in progress. We are currently including the eigen3 linear algebra library folder within this program. Note that example datasets are supplied in the data folder, e.g. iris.csv.
 
 ## References
 David Barber, [Bayesian Reasoning and Machine Learning](http://web4.cs.ucl.ac.uk/staff/D.Barber/textbook/171216.pdf), 2016. (pp. 313-317) <br>
