@@ -29,6 +29,32 @@ To run this program in verbose mode, please run:
 ```
 ./knn-cli [train] [test] -v 
 ```
+
+
+## Install
+To install this program to your posix standard system, please run the following.
+
+```
+git clone git@github.com:nathanenglehart/knn-cpp-241.git
+cd knn-cpp-241
+make
+cp knn-cli /usr/local/bin/knn-cli
+chmod 0755 /usr/local/bin/knn-cli
+```
+
+The program can then be run from any location on your system, as in the below.
+
+```
+knn-cli [train] [test] [options...]
+```
+
+## Uninstall
+To uninstall this program from your system, run the following.
+
+```
+rm /usr/local/bin/knn-cli
+```
+
 ## Notes
 This is currently a work in progress. We are currently including the eigen3 linear algebra library folder within this program. Note that example datasets are supplied in the data folder, e.g. iris.csv.
 
