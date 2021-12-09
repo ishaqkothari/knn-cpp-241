@@ -7,6 +7,16 @@
 
 /* Nathan Englehart, Xuhang Cao, Samuel Topper, Ishaq Kothari (Autumn 2021) */
 
+bool valid_filepath(const std::string & sys_path)
+{
+  std::ifstream test(sys_path);
+  if(!test)
+  {
+    return false;
+  }
+
+  return true;
+}
 
 template <typename T> T * to_array(std::vector<T> list, int length)
 {

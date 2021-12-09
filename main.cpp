@@ -67,108 +67,96 @@ void driver(std::string sys_path_test, std::string sys_path_train, int K, double
   }
 }
 
-bool valid_filepath(const std::string & sys_path)
-{
-  std::ifstream test(sys_path);
-  if(!test)
-  {
-    return false;
-  }
-
-  return true;
-}
-
 int main(int argc, char **argv)
 {
+  int K = 5; // Need to add cross validation to decide optimal K
 
-if(argc == 2)
+  if(argc == 1)
   {
-    if(argv[1][0]== '-' && argv[1][1]== 'h' && argv[1][2] == '\0')
-      {
-        std::cout << "Help Menu \n";
-	std::cout << "KNN cli (2021 Dec 8, compiled " << __TIMESTAMP__ << " " << __TIME__ << ")\n\n";
-        std::cout << "usage: ./knn-cli [train] [test] [options ..]    read in train csv and test csv files from filesystem\n";
-        std::cout << "   or: ./knn-cli -h                             displays help menu\n\n";
-        std::cout << "Arguments:\n";
-        std::cout << "   -h     Displays help menu\n";
-        std::cout << "   -v     Displays output in verbose mode\n";
-	return 0;
-      }
-    else
-      {
-        std::cout << "error.usage ./knn-cli[train][test][options...]\n";
-	std::cout << "enter ./knn-cli -h for a help menu \n";
-	return 1;
-      }
-
-  }
-else if(argc == 4)
+    std::cout << "No arguments supplied.\n";
+    std::cout << "Usage: ./knn-cli [train] [test] [options ..]\n";
+    std::cout << "More info with: \"./knn-cli -h\"\n";
+    return 1;
+  } else if(argc == 2) {
+  if(argv[1][0] == '-' && argv[1][1] == 'h' && argv[1][2] == '\0')
   {
-    if(argv[3][0] == '-' && argv[3][1] == 'v' && argv[3][2] == '\0')
-      {
-        if(valid_filepath(argv[1]) && valid_filepath(argv[2]))
-          {
-            driver(argv[2],argv[1],5,&EuclideanDistance,true);
-            return 0;
-          }
-        else if(!valid_filepath(argv[1]))
-          {
-            std::cout << "Invalid filepath: " << argv[1] << "\n";
-            return 1;
-          } 
-        else if(!valid_filepath(argv[2]))
-          {
-            std::cout << "Invalid filepath: " << argv[2] << "\n";
-            return 1;
-          }	
-      }
-    else
-      {
-        std::cout << "error.usage ./knn-cli[train][test][options...]\n";
-        std::cout << "enter ./knn-cli [train] [test] -v to run program in verbose\n";
-	return 1;
-      }
+    std::cout << "K Nearest Neighbors Cli (2021 Dec 8, compiled " << __TIMESTAMP__ << " " << __TIME__ << ")\n\n";
+    std::cout << "usage: ./knn-cli [train] [test] [options ..]    read in train csv and test csv files from filesystem\n";
+    std::cout << "   or: ./knn-cli -h                             displays help menu\n\n";
+    std::cout << "Arguments:\n";
+    std::cout << "   -h     Displays help menu\n";
+    std::cout << "   -v     Displays output in verbose mode\n";
+    return 0;
+  } else
+  {
+    std::cout << "Unknown option argument: " << argv[1] << "\n";
+    std::cout << "More info with: \"./knn-cli -h\"\n";
+    return 1;
   }
-else if(argc == 3)
+  } else if(argc == 4)
+  {
+  if(argv[3][0] == '-' && argv[3][1] == 'v' && argv[3][2] == '\0') // Add check if file exists later
   {
     if(valid_filepath(argv[1]) && valid_filepath(argv[2]))
-      {
-        driver(argv[2],argv[1],5,&EuclideanDistance,false);
-        return 0;
-      }
-    else if(!valid_filepath(argv[1]))
-      {
-        std::cout << "Invalid filepath: " << argv[1] << "\n";
-        return 1;
-      }
-    else if(!valid_filepath(argv[2]))
-      {
-        std::cout << "Invalid filepath: " << argv[2] << "\n";
-        return 1;
-      }
-    else
-      {
-        std::cout << "error.usage ./knn-cli[train][test][options...]\n";
-        std::cout << "enter valid files in the form: knn-cli [train] [test]\n";
-	return 1;
-      }
-  }
-else
+    {
+      driver(argv[2],argv[1],K,&EuclideanDistance,true);
+      return 0;
+    } else if(!valid_filepath(argv[1]))
+    {
+      std::cout << "Invalid filepath: " << argv[1] << "\n";
+      std::cout << "Usage: ./knn-cli [train] [test] [options ..]\n";
+      return 1;
+    } else if(!valid_filepath(argv[2]))
+    {
+      std::cout << "Invalid filepath: " << argv[2] << "\n";
+      std::cout << "Usage: ./knn-cli [train] [test] [options ..]\n";
+      return 1;
+    }
+  } else
   {
-    std::cout << "error.usage ./knn-cli[train][test][options...]\n";
-    std::cout << "input is not recognized -- please enter in the form: knn-cli[train][test][options...]\n";
+    std::cout << "Unknown option argument: " << argv[3] << "\n";
+    std::cout << "More info with: \"./knn-cli -h\"\n";
+    return 1;
+  }
+  } else if(argc == 3) // Add check if file exists later
+  {
+  if(valid_filepath(argv[1]) && valid_filepath(argv[2]))
+  {
+    driver(argv[2],argv[1],K,&EuclideanDistance,false);
+    return 0;
+  } else if(!valid_filepath(argv[1]))
+  {
+    std::cout << "Invalid filepath: " << argv[1] << "\n";
+    std::cout << "Usage: ./knn-cli [train] [test] [options ..]\n";
+    return 1;
+  } else if(!valid_filepath(argv[2]))
+  {
+    std::cout << "Invalid filepath: " << argv[2] << "\n";
+    std::cout << "Usage: ./knn-cli [train] [test] [options ..]\n";
+    return 1;
+  } else
+  {
+    std::cout << "Unknown option argument: " << argv[3] << "\n";
+    std::cout << "More info with: \"./knn-cli -h\"\n";
+    return 1;
+  }
+  } else
+  {
+    std::cout << "Too many arguments supplied.\n";
+    std::cout << "Usage: ./knn-cli [train] [test] [options ..]\n";
+    std::cout << "More info with: \"./knn-cli -h\"\n";
     return 1;
   }
 
-    /* [Iris-virginica] => 0 [Iris-setosa] => 1 [Iris-versicolor] => 2 */
+  /* [Iris-virginica] => 0 [Iris-setosa] => 1 [Iris-versicolor] => 2 */
 
-    driver("./data/iristest.csv", "./data/iris.csv", 11, &ManhattanDistance, true);
-    driver("./data/iristest.csv", "./data/iris.csv", 11, &ChebyshevDistance, true);
-    driver("./data/iristest.csv", "./data/iris.csv", 11, &EuclideanDistance, true);
+  //driver("./data/iristest.csv", "./data/iris.csv", 11, &ManhattanDistance, true);
+  //driver("./data/iristest.csv", "./data/iris.csv", 11, &ChebyshevDistance, true);
+  //driver("./data/iristest.csv", "./data/iris.csv", 11, &EuclideanDistance, true);
 
-    //driver("./data/S1test.csv", "./data/S1train.csv", 131, &EuclideanDistance, true);
-    //driver("./data/S2test.csv", "./data/S2train.csv", 85, &EuclideanDistance, true);
+  //driver("./data/S1test.csv", "./data/S1train.csv", 131, &EuclideanDistance, true);
+  //driver("./data/S2test.csv", "./data/S2train.csv", 85, &EuclideanDistance, true);
 
 
-    return 0;
+  return 0;
 }
