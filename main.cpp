@@ -38,27 +38,32 @@ void driver(std::string sys_path_test, std::string sys_path_train, int K, double
 
   /* Driver for a k nearest neighbors classifier. */
 
+  Eigen::MatrixXd train = load_csv<Eigen::MatrixXd>(sys_path_train);
+  Eigen::MatrixXd test = load_csv<Eigen::MatrixXd>(sys_path_test);
+
   if(verbose == true)
   {
     std::cout << "K = " << K << "\n";
   }
 
-  Eigen::MatrixXd test = load_csv<Eigen::MatrixXd>(sys_path_test);
-
-  if(verbose == true)
+  if(K > train.rows())
   {
-      std::cout << "Test data filepath: " << sys_path_test << "\n";
-      //std::cout << "Test Data: " << sys_path_test << "\n";
-      //std::cout << test << "\n\n";
+    std::cout << "Invalid K value. K must not exceed train dataset length.\n";
+    exit(1);
   }
-
-  Eigen::MatrixXd train = load_csv<Eigen::MatrixXd>(sys_path_train);
 
   if(verbose == true)
   {
       std::cout << "Train data filepath: " << sys_path_train << "\n";
       //std::cout << "Train Data: " << sys_path_train << "\n";
       //std::cout << train << "\n\n";
+  }
+
+  if(verbose == true)
+  {
+      std::cout << "Test data filepath: " << sys_path_test << "\n";
+      //std::cout << "Test Data: " << sys_path_test << "\n";
+      //std::cout << test << "\n\n";
   }
 
   std::vector<int> predictions = knn(test, test.rows(), train, train.rows(), K, *&distance_function);
@@ -73,11 +78,6 @@ void driver(std::string sys_path_test, std::string sys_path_train, int K, double
     }
     std::cout << "\n";
   }
-}
-
-bool is_digits(const std::string &str)
-{
-    return std::all_of(str.begin(), str.end(), ::isdigit); // C++11
 }
 
 int main(int argc, char **argv)
@@ -160,6 +160,11 @@ int main(int argc, char **argv)
             std::cout << "More info with: \"./knn-cli -h\"\n";
             return 1;
           }
+        } else
+        {
+          std::cout << "Unknown K value: \n";
+          std::cout << "More info with: \"./knn-cli -h\"\n";
+          return 1;
         }
       } else
       {
@@ -182,94 +187,6 @@ int main(int argc, char **argv)
 
 
   driver(argv[2],argv[1],K,distance_function,verbose);
-
-
-
-  /*
-  int K = 5; // Need to add cross validation to decide optimal K
-
-  if(argc == 1)
-  {
-    std::cout << "No arguments supplied.\n";
-    std::cout << "Usage: ./knn-cli [train] [test] [options ..]\n";
-    std::cout << "More info with: \"./knn-cli -h\"\n";
-    return 1;
-  } else if(argc == 2) {
-    if(argv[1][0] == '-' && argv[1][1] == 'h' && argv[1][2] == '\0')
-    {
-      std::cout << "K Nearest Neighbors Cli (2021 Dec 8, compiled " << __TIMESTAMP__ << " " << __TIME__ << ")\n\n";
-      std::cout << "usage: ./knn-cli [train] [test] [options ..]    read in train csv and test csv files from filesystem\n";
-      std::cout << "   or: ./knn-cli -h                             displays help menu\n\n";
-      std::cout << "Arguments:\n";
-      std::cout << "   -h     Displays help menu\n";
-      std::cout << "   -v     Displays output in verbose mode\n";
-      std::cout << "   -e     Runs algorithm using the Euclidean Distance formula\n";
-      std::cout << "   -m     Runs algorithm using the Manhattan Distance formula\n";
-      std::cout << "   -c     Runs algorithm using the Chebyshev Distance formula\n";
-
-      return 0;
-    } else
-    {
-      std::cout << "Unknown option argument: " << argv[1] << "\n";
-      std::cout << "Usage: ./knn-cli [train] [test] [options ..]\n";
-      std::cout << "More info with: \"./knn-cli -h\"\n";
-      return 1;
-    }
-  } else if(argc == 3)
-    {
-    if(valid_filepath(argv[1]) && valid_filepath(argv[2]))
-    {
-      driver(argv[2],argv[1],K,&EuclideanDistance,false);
-      return 0;
-    } else if(!valid_filepath(argv[1]))
-    {
-      std::cout << "Invalid filepath: " << argv[1] << "\n";
-      std::cout << "Usage: ./knn-cli [train] [test] [options ..]\n";
-      return 1;
-    } else if(!valid_filepath(argv[2]))
-    {
-      std::cout << "Invalid filepath: " << argv[2] << "\n";
-      std::cout << "Usage: ./knn-cli [train] [test] [options ..]\n";
-      return 1;
-    } else
-    {
-      std::cout << "Unknown option argument: " << argv[3] << "\n";
-      std::cout << "More info with: \"./knn-cli -h\"\n";
-      return 1;
-    }
-  } else if(argc == 4)
-  {
-    if(argv[3][0] == '-' && argv[3][1] == 'v' && argv[3][2] == '\0')
-    {
-      if(valid_filepath(argv[1]) && valid_filepath(argv[2]))
-      {
-        driver(argv[2],argv[1],K,&EuclideanDistance,true);
-        return 0;
-      } else if(!valid_filepath(argv[1]))
-      {
-        std::cout << "Invalid filepath: " << argv[1] << "\n";
-        std::cout << "Usage: ./knn-cli [train] [test] [options ..]\n";
-        return 1;
-      } else if(!valid_filepath(argv[2]))
-      {
-        std::cout << "Invalid filepath: " << argv[2] << "\n";
-        std::cout << "Usage: ./knn-cli [train] [test] [options ..]\n";
-        return 1;
-      }
-    } else
-    {
-      std::cout << "Unknown option argument: " << argv[3] << "\n";
-      std::cout << "More info with: \"./knn-cli -h\"\n";
-      return 1;
-    }
-  } else
-  {
-    std::cout << "Too many arguments supplied.\n";
-    std::cout << "Usage: ./knn-cli [train] [test] [options ..]\n";
-    std::cout << "More info with: \"./knn-cli -h\"\n";
-    return 1;
-  }
-  */
 
   /* [Iris-virginica] => 0 [Iris-setosa] => 1 [Iris-versicolor] => 2 */
 

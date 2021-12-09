@@ -7,6 +7,11 @@
 
 /* Nathan Englehart, Xuhang Cao, Samuel Topper, Ishaq Kothari (Autumn 2021) */
 
+bool is_digits(const std::string &str)
+{
+    return std::all_of(str.begin(), str.end(), ::isdigit); // C++11
+}
+
 bool valid_filepath(const std::string & sys_path)
 {
   std::ifstream test(sys_path);
