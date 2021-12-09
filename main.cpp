@@ -188,7 +188,7 @@ int main(int argc, char **argv)
 
   driver(argv[2],argv[1],K,distance_function,verbose);
 
-  /* [Iris-virginica] => 0 [Iris-setosa] => 1 [Iris-versicolor] => 2 */
+  /* [Iris-virginica] => 0 [Iris-versicolor] => 1 [Iris-setosa] => 2 */
 
   //driver("./data/iristest.csv", "./data/iris.csv", 11, &ManhattanDistance, true);
   //driver("./data/iristest.csv", "./data/iris.csv", 11, &ChebyshevDistance, true);
