@@ -4,13 +4,12 @@
 #include <iostream>
 #include <vector>
 #include <cmath>
-#include "eigen3/Eigen/Dense"
 #include <fstream>
 #include <algorithm>
+#include "eigen3/Eigen/Dense"
 #include "utils.h"
 
 /* Nathan Englehart, Xuhang Cao, Samuel Topper, Ishaq Kothari (Autumn 2021) */
-
 
 double EuclideanDistance(Eigen::VectorXd a, Eigen::VectorXd b, int length);
 double ManhattanDistance(Eigen::VectorXd a, Eigen::VectorXd b, int length);
