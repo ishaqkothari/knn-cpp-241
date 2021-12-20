@@ -8,7 +8,6 @@
 
 /* Nathan Englehart, Xuhang Cao, Samuel Topper, Ishaq Kothari (Autumn 2021) */
 
-
 double EuclideanDistance(Eigen::VectorXd a, Eigen::VectorXd b, int length)
 {
 
