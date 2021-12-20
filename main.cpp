@@ -10,7 +10,6 @@
 
 /* Nathan Englehart, Xuhang Cao, Samuel Topper, Ishaq Kothari (Autumn 2021) */
 
-
 template<typename T> T load_csv(const std::string & sys_path)
 {
 
