@@ -1,10 +1,10 @@
 #include <iostream>
 #include <vector>
 #include <cmath>
-#include "includes/eigen3/Eigen/Dense"
 #include <fstream>
 #include <algorithm>
 #include <sstream>
+#include "includes/eigen3/Eigen/Dense"
 #include "includes/utils.h"
 #include "includes/knn.h"
 
