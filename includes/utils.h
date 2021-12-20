@@ -4,9 +4,9 @@
 #include <iostream>
 #include <vector>
 #include <cmath>
-#include "eigen3/Eigen/Dense"
 #include <fstream>
 #include <algorithm>
+#include "eigen3/Eigen/Dense"
 
 /* Nathan Englehart, Xuhang Cao, Samuel Topper, Ishaq Kothari (Autumn 2021) */
 
