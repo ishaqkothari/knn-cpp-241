@@ -30,7 +30,7 @@ double misclassification_rate(std::vector<int> labels, std::vector<int> ground_t
 std::vector<Eigen::Matrix<double,Eigen::Dynamic,Eigen::Dynamic>, Eigen::aligned_allocator<Eigen::Matrix<double,Eigen::Dynamic,Eigen::Dynamic> > > split(Eigen::MatrixXd dataset, int K)
 {
 	
-  	/* Returns list of K folds split from input dataset. */
+  	/* Returns list of K folds split from input dataset. Rounds down if there is a remainder after division. */
   
 	int place = 0;
 
@@ -40,7 +40,7 @@ std::vector<Eigen::Matrix<double,Eigen::Dynamic,Eigen::Dynamic>, Eigen::aligned_
 	{
 		Eigen::MatrixXd fold(dataset.rows() / K,dataset.cols());
 
-		for(int j = 0; j < fold_len; j++)
+		for(int j = 0; j < dataset.rows() / K; j++)
 		{
 			Eigen::VectorXd x = dataset.row(place++);
 			fold.row(j) = x;
