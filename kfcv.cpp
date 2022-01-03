@@ -30,10 +30,32 @@ double misclassification_rate(std::vector<int> labels, std::vector<int> ground_t
 std::vector<Eigen::Matrix<double,Eigen::Dynamic,Eigen::Dynamic>, Eigen::aligned_allocator<Eigen::Matrix<double,Eigen::Dynamic,Eigen::Dynamic> > > split(Eigen::MatrixXd dataset, int K)
 {
 	
-  	/* Returns list of K folds split from input dataset. Rounds down if there is a remainder after division. */
-  
+  	/* Returns list of K folds split from input dataset. */
+
+	//create temporary std::vector to hold rows of dataset
+	std::vector<Eigen::Vector<double,Eigen::Dynamic>, Eigen::aligned_allocator<Eigen::Vector<double,Eigen::Dynamic> > > temp;
+
+	for(int i = 0; i < dataset.rows(); i++)
+	{
+		temp.push_back(dataset.row(i));
+	}
+
+	//shuffle std::vector
+	auto random_number_generator = std::default_random_engine {};
+	std::shuffle(std::begin(temp), std::end(temp), random_number_generator);
+
+	// write shuffled rows a new shuffled matrix
 	int place = 0;
 
+	Eigen::MatrixXd shuffled(dataset.rows(),dataset.cols());
+
+	for( auto v : temp )
+	{
+		shuffled.row(place++) = v;
+	}
+
+	place = 0;
+	
 	std::vector<Eigen::Matrix<double,Eigen::Dynamic,Eigen::Dynamic>, Eigen::aligned_allocator<Eigen::Matrix<double,Eigen::Dynamic,Eigen::Dynamic> > > list; // does not like not regular ints as arguments, e.g. row len and fold len	
 
 	for(int i = 0; i < K; i++)
@@ -42,7 +64,7 @@ std::vector<Eigen::Matrix<double,Eigen::Dynamic,Eigen::Dynamic>, Eigen::aligned_
 
 		for(int j = 0; j < dataset.rows() / K; j++)
 		{
-			Eigen::VectorXd x = dataset.row(place++);
+			Eigen::VectorXd x = shuffled.row(place++);
 			fold.row(j) = x;
 		}
 
@@ -51,4 +73,5 @@ std::vector<Eigen::Matrix<double,Eigen::Dynamic,Eigen::Dynamic>, Eigen::aligned_
 
 	return list;
 }
+
 
