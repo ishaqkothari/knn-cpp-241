@@ -25,3 +25,32 @@ double misclassification_rate(std::vector<int> labels, std::vector<int> ground_t
 
   return incorrect / labels.size();
 }
+
+std::vector<Eigen::Matrix<double,Eigen::Dynamic,Eigen::Dynamic>, Eigen::aligned_allocator<Eigen::Matrix<double,Eigen::Dynamic,Eigen::Dynamic> > > split(Eigen::MatrixXd dataset, int K)
+{
+	
+  /* Returns list of K folds split from input dataset. */
+  
+	int mat_len = dataset.rows(); 
+	int fold_len = mat_len / K;
+	int place = 0;
+	int row_len = dataset.cols();
+
+	std::vector<Eigen::Matrix<double,Eigen::Dynamic,Eigen::Dynamic>, Eigen::aligned_allocator<Eigen::Matrix<double,Eigen::Dynamic,Eigen::Dynamic> > > list; // does not like not regular ints as arguments, e.g. row len and fold len	
+
+	for(int i = 0; i < K; i++)
+	{
+		Eigen::MatrixXd fold(fold_len,row_len); // may be reverse 
+    
+		for(int j = 0; j < fold_len; j++)
+		{
+			Eigen::VectorXd x = dataset.row(place++);
+			fold.row(j) = x;
+		}
+    
+		list.push_back(fold);
+	}
+
+	return list;
+}
+
