@@ -30,11 +30,12 @@ double misclassification_rate(std::vector<int> labels, std::vector<int> ground_t
 std::vector<Eigen::Matrix<double,Eigen::Dynamic,Eigen::Dynamic>, Eigen::aligned_allocator<Eigen::Matrix<double,Eigen::Dynamic,Eigen::Dynamic> > > split(Eigen::MatrixXd dataset, int K)
 {
 	
-  	/* Returns list of K folds split from input dataset. */
+  	/* Returns shuffled list of K Eigen::MatrixXd folds, split from input dataset. */
 
+	int place = 0;
+	
 	//create temporary std::vector to hold rows of dataset
 	std::vector<Eigen::Vector<double,Eigen::Dynamic>, Eigen::aligned_allocator<Eigen::Vector<double,Eigen::Dynamic> > > temp;
-
 	for(int i = 0; i < dataset.rows(); i++)
 	{
 		temp.push_back(dataset.row(i));
@@ -45,10 +46,7 @@ std::vector<Eigen::Matrix<double,Eigen::Dynamic,Eigen::Dynamic>, Eigen::aligned_
 	std::shuffle(std::begin(temp), std::end(temp), random_number_generator);
 
 	// write shuffled rows a new shuffled matrix
-	int place = 0;
-
 	Eigen::MatrixXd shuffled(dataset.rows(),dataset.cols());
-
 	for( auto v : temp )
 	{
 		shuffled.row(place++) = v;
