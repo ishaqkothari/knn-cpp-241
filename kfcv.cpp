@@ -45,7 +45,7 @@ std::vector<Eigen::Matrix<double,Eigen::Dynamic,Eigen::Dynamic>, Eigen::aligned_
 	auto random_number_generator = std::default_random_engine {};
 	std::shuffle(std::begin(temp), std::end(temp), random_number_generator);
 
-	// write shuffled rows a new shuffled matrix
+	//write shuffled rows a new shuffled matrix
 	Eigen::MatrixXd shuffled(dataset.rows(),dataset.cols());
 	for( auto v : temp )
 	{
@@ -71,5 +71,18 @@ std::vector<Eigen::Matrix<double,Eigen::Dynamic,Eigen::Dynamic>, Eigen::aligned_
 
 	return list;
 }
+
+std::vector<double> kfcv(std::vector<Eigen::Matrix<double,Eigen::Dynamic,Eigen::Dynamic>, Eigen::aligned_allocator<Eigen::Matrix<double,Eigen::Dynamic,Eigen::Dynamic> > > folds, int K)
+{
+	/* Returns std::vector of error statistics from run of cross validation using given error function and classification function. */
+
+	for()
+	{
+		
+	}
+	
+}
+
+// compute_best_k in knn
 
 
