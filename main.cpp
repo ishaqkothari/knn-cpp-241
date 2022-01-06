@@ -31,8 +31,6 @@ double misclassification_rate(std::vector<int> labels, std::vector<int> ground_t
       }
   }
 
-  //printf("incorrect: %d\n",incorrect);
-
   return (double) incorrect / labels.size();
 }
 
@@ -50,11 +48,13 @@ std::vector<Eigen::Matrix<double,Eigen::Dynamic,Eigen::Dynamic>, Eigen::aligned_
 		temp.push_back(dataset.row(i));
 	}
 
-	//shuffle std::vector
+	// shuffle std::vector
+	
 	auto random_number_generator = std::default_random_engine {};
 	std::shuffle(std::begin(temp), std::end(temp), random_number_generator);
 
-	//write shuffled rows a new shuffled matrix
+	// write shuffled rows into a new shuffled matrix
+	
 	Eigen::MatrixXd shuffled(dataset.rows(),dataset.cols());
 	for( auto v : temp )
 	{
@@ -226,12 +226,8 @@ void driver(std::string sys_path_test, std::string sys_path_train, double (*dist
   
   if(verbose == true)
   {
-  	//printf("error %10d this\n",);
-
-	//std::cout << "\nmininimum error value: " << min_error << " gives an optimal K value of " << optimal_param_value << "\n\n";
 	printf("\nmin error: %f\n",min_error);
 	printf("optimal k: %d\n\n",optimal_param_value);
-
   }
  
   // run knn with optimal K parameter
@@ -324,8 +320,6 @@ int main(int argc, char **argv)
       std::cout << "More info with: \"./knn-cli -h\"\n";
       return 1;
     }
-
-
 
     counter = counter + 1;
   }
