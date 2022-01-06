@@ -31,7 +31,9 @@ double misclassification_rate(std::vector<int> labels, std::vector<int> ground_t
       }
   }
 
-  return incorrect / labels.size();
+  //printf("incorrect: %d\n",incorrect);
+
+  return (double) incorrect / labels.size();
 }
 
 std::vector<Eigen::Matrix<double,Eigen::Dynamic,Eigen::Dynamic>, Eigen::aligned_allocator<Eigen::Matrix<double,Eigen::Dynamic,Eigen::Dynamic> > > split(Eigen::MatrixXd dataset, int K)
@@ -79,7 +81,9 @@ std::vector<Eigen::Matrix<double,Eigen::Dynamic,Eigen::Dynamic>, Eigen::aligned_
 	return list;
 }
 
-double kfcv(Eigen::MatrixXd dataset, int K, std::vector<int> (*classifier) (Eigen::MatrixXd train, int train_size, Eigen::MatrixXd validation, int validation_size, int optimal_parameter, double (*distance_function) (Eigen::VectorXd a, Eigen::VectorXd b, int length)))
+int run_counter = 1;
+
+double kfcv(Eigen::MatrixXd dataset, int K, std::vector<int> (*classifier) (Eigen::MatrixXd train, int train_size, Eigen::MatrixXd validation, int validation_size, int optimal_parameter, double (*distance_function) (Eigen::VectorXd a, Eigen::VectorXd b, int length)), int param, double (*distance_function) (Eigen::VectorXd a, Eigen::VectorXd b, int length))
 {
 	/* Returns std::vector of error statistics from run of cross validation using given error function and classification function. */
 
@@ -87,46 +91,37 @@ double kfcv(Eigen::MatrixXd dataset, int K, std::vector<int> (*classifier) (Eige
 
 	double total_error = 0;
 
-	int idx = 0;
-
 	for(int i = 0; i < K; i++)
 	{
-		printf("starting run\n");
-
-		printf("dataset rows: %d\n", dataset.rows());
-
 		int length = dataset.rows() / K;
-		int place = 0;
-
-		printf("length: %d\n",length);
-
-		// this part is having an issue now
+		int train_place = 0;
+		int validation_place = 0;
 
 		Eigen::MatrixXd validation(length * 1,dataset.cols());
 		Eigen::MatrixXd train(length * (K-1),dataset.cols());
 
+		int idx = 0;
+	
 		for(auto v : folds)
 		{
-			if(idx != K)
+			if(idx != i)
 			{
-				for(int i = 0; i < length; i++)
+				for(int j = 0; j < length; j++)
 				{
-					train.row(place++) = v.row(i);
+					train.row(train_place++) = v.row(j);
 				}
 			}
 
-			if(idx == K)
+			if(idx == i)
 			{
-				for(int i = 0; i < length; i++)
+				for(int j = 0; j < length; j++)
 				{
-					validation.row(place++) = v.row(i);
+					validation.row(validation_place++) = v.row(j);
 				}
 			}
 
 			idx = idx + 1;
 		}
-
-		printf("created matricies\n");
 
 		std::vector<int> truth_labels;
 
@@ -134,37 +129,17 @@ double kfcv(Eigen::MatrixXd dataset, int K, std::vector<int> (*classifier) (Eige
 
 		for(int i = 0; i < validation.rows(); i++)
 		{
-			printf("found row\n");
 			truth_labels.push_back(validation.coeff(i,0));
 		}	
-		
-		std::vector<int> predictions = classifier(train,train.rows(),validation,validation.rows(),K,&EuclideanDistance);
 
-		printf("ground truth labels: \n");
-		for(auto v : truth_labels)
-		{
-			std::cout << v << "\n";
-		}
-		
-
-		printf("predictions: \n");
-		for(auto v : predictions)
-		{
-			std::cout << v << "\n";
-		}
+		std::vector<int> predictions = classifier(validation,validation.rows(),train,train.rows(),param,*&distance_function); // change to distance function parameter
 
 		double error = misclassification_rate(predictions,truth_labels);
 		total_error += error;
-
-		printf("completed run\n");
 	}
 
-	return total_error / K;
+	return (double) total_error / K;
 }
-
-// compute_best_k in knn
-
-
 
 template<typename T> T load_csv(const std::string & sys_path)
 {
@@ -176,19 +151,24 @@ template<typename T> T load_csv(const std::string & sys_path)
   std::string line;
   std::vector<double> values;
   uint rows = 0;
-  while (std::getline(in, line)) {
+
+  while(std::getline(in, line)) 
+  {
       std::stringstream lineStream(line);
       std::string cell;
-      while (std::getline(lineStream, cell, ',')) {
+
+      while(std::getline(lineStream, cell, ',')) 
+      {
           values.push_back(std::stod(cell));
       }
+
       rows = rows + 1;
   }
 
   return Eigen::Map<const Eigen::Matrix<typename T::Scalar, T::RowsAtCompileTime, T::ColsAtCompileTime, Eigen::RowMajor>>(values.data(), rows, values.size()/rows);
 }
 
-void driver(std::string sys_path_test, std::string sys_path_train, int K, double (*distance_function) (Eigen::VectorXd a, Eigen::VectorXd b, int length), bool verbose)
+void driver(std::string sys_path_test, std::string sys_path_train, double (*distance_function) (Eigen::VectorXd a, Eigen::VectorXd b, int length), bool verbose)
 {
 
   /* Driver for a k nearest neighbors classifier. */
@@ -198,40 +178,74 @@ void driver(std::string sys_path_test, std::string sys_path_train, int K, double
 
   if(verbose == true)
   {
-    std::cout << "K = " << K << "\n";
-  }
-
-  if(K > train.rows())
-  {
-    std::cout << "Invalid K value. K must not exceed train dataset length.\n";
-    exit(1);
+      std::cout << "train data filepath: " << sys_path_train << "\n";
   }
 
   if(verbose == true)
   {
-      std::cout << "Train data filepath: " << sys_path_train << "\n";
-      //std::cout << "Train Data: " << sys_path_train << "\n";
-      //std::cout << train << "\n\n";
+      std::cout << "test data filepath: " << sys_path_test << "\n\n";
   }
 
+  // use 10 fold cross validation to find optimal K parameter
+
+  std::vector<double> error;
+
+  int num_folds = 10;
+
+  for(int i = 1; i < (train.rows()/num_folds)*(num_folds-1); i+=2) 
+  {
+  	if(verbose == true)
+	{
+  		printf("computing error for k=%d",i);
+	}
+
+	double result = kfcv(train,num_folds,&knn,i,*&distance_function);
+	error.push_back(result);
+	
+	if(verbose == true)
+	{	
+		printf(" -> %f\n", result);
+  	}
+  }	
+
+  double min_error = error.front();
+  int optimal_param_value = 1;
+  int curr_param_value = 1;
+
+  for(auto v : error)
+  {
+	if(v < min_error)
+	{
+		min_error = v;
+		optimal_param_value = curr_param_value;
+	}
+
+	curr_param_value += 2;
+  }
+
+  
   if(verbose == true)
   {
-      std::cout << "Test data filepath: " << sys_path_test << "\n";
-      //std::cout << "Test Data: " << sys_path_test << "\n";
-      //std::cout << test << "\n\n";
-  }
+  	//printf("error %10d this\n",);
 
-  std::vector<int> predictions = knn(test, test.rows(), train, train.rows(), K, *&distance_function);
+	//std::cout << "\nmininimum error value: " << min_error << " gives an optimal K value of " << optimal_param_value << "\n\n";
+	printf("\nmin error: %f\n",min_error);
+	printf("optimal k: %d\n\n",optimal_param_value);
+
+  }
+ 
+  // run knn with optimal K parameter
+
+  std::vector<int> predictions = knn(test, test.rows(), train, train.rows(), optimal_param_value, *&distance_function);
 
   if(verbose == true)
   {
     int count = 0;
     for(auto v : predictions)
     {
-        std::cout << "Vector " << count << " Classification = " << v << "\n";
+        std::cout << "vector " << count << " classification = " << v << "\n";
         count++;
     }
-    std::cout << "\n";
   }
 }
 
@@ -240,7 +254,6 @@ int main(int argc, char **argv)
 
   /* Default parameters are K = 1, distance function is set to Euclidean Distance, and verbose is set to false. */
 
-  int K = 1;
   auto distance_function = &EuclideanDistance;
   bool verbose = false;
 
@@ -299,28 +312,6 @@ int main(int argc, char **argv)
       } else if(argv[counter][0] == '-' && argv[counter][1] == 'c' && argv[counter][2] == '\0')
       {
         distance_function = &ChebyshevDistance;
-      } else if(argv[counter][0] == '-' && argv[counter][1] == 'k' && argv[counter][2] == '\0')
-      {
-        if(argv[counter + 1] != NULL)
-        {
-          if(is_digits(argv[counter + 1]))
-          {
-            std::stringstream converter(argv[counter + 1]);
-            K = 0;
-            converter >> K;
-            counter = counter + 1;
-          } else
-          {
-            std::cout << "Unknown K value: " << argv[counter + 1] << "\n";
-            std::cout << "More info with: \"./knn-cli -h\"\n";
-            return 1;
-          }
-        } else
-        {
-          std::cout << "Unknown K value: \n";
-          std::cout << "More info with: \"./knn-cli -h\"\n";
-          return 1;
-        }
       } else
       {
         std::cout << "Unknown option argument: " << argv[counter] << "\n";
@@ -339,14 +330,7 @@ int main(int argc, char **argv)
     counter = counter + 1;
   }
 
-
-  // TEST
-
-  Eigen::MatrixXd train = load_csv<Eigen::MatrixXd>(argv[1]);
-  double average_error = kfcv(train,10,&knn); // 10 fold cv; argv[1] is train; knn(train,val,optimal_param)
-
-
-  //driver(argv[2],argv[1],K,distance_function,verbose); // UNCOMMENT ME
+  driver(argv[2],argv[1],distance_function,verbose); 
 
   /* [Iris-virginica] => 0 [Iris-versicolor] => 1 [Iris-setosa] => 2 */
 
