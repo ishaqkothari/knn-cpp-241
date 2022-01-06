@@ -72,15 +72,26 @@ std::vector<Eigen::Matrix<double,Eigen::Dynamic,Eigen::Dynamic>, Eigen::aligned_
 	return list;
 }
 
-std::vector<double> kfcv(std::vector<Eigen::Matrix<double,Eigen::Dynamic,Eigen::Dynamic>, Eigen::aligned_allocator<Eigen::Matrix<double,Eigen::Dynamic,Eigen::Dynamic> > > folds, int K)
+double kfcv(Eigen::MatrixXd dataset, int K)
 {
 	/* Returns std::vector of error statistics from run of cross validation using given error function and classification function. */
 
-	for()
+	std::vector<Eigen::Matrix<double,Eigen::Dynamic,Eigen::Dynamic>, Eigen::aligned_allocator<Eigen::Matrix<double,Eigen::Dynamic,Eigen::Dynamic> > > folds = split(dataset,K);
+
+	double total_error = 0;
+
+	for(int i = 0; i < K; i++)
 	{
-		
+		// validation
+		// train
+		// predictions = classifier(train,validation,K);
+		// error = misclassification_rate(predictions,truth_labels);
+		// total_error += error;
 	}
-	
+
+	total_error = total_error / K;
+
+	return total_error;
 }
 
 // compute_best_k in knn
