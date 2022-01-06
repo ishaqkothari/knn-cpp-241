@@ -4,6 +4,7 @@
 #include <random>
 #include "includes/eigen3/Eigen/Dense"
 #include "includes/eigen3/Eigen/StdVector"
+#include "includes/knn.h"
 
 /* Nathan Englehart, Xuhang Cao, Samuel Topper, Ishaq Kothari (Autumn 2021) */
 
@@ -75,8 +76,10 @@ std::vector<Eigen::Matrix<double,Eigen::Dynamic,Eigen::Dynamic>, Eigen::aligned_
 
 // double (*distance_function) (Eigen::VectorXd a, Eigen::VectorXd b, int length),
 // std::vector<int> predictions = knn(test, test.rows(), train, train.rows(), K, *&distance_function);
+//std::vector<int> knn(Eigen::MatrixXd M1, int M1_size, Eigen::MatrixXd M2, int M2_size, int K, double (*distance_function) (Eigen::VectorXd a, Eigen::VectorXd b, int length))
 
-double kfcv(Eigen::MatrixXd dataset, int K, std::vector<int> (*classifier) (Eigen::MatrixXd train, Eigen::MatrixXd validation, int optimal_parameter), double (*error_function) (std::vector<int> labels, std::vector<int> ground_truth_labels))
+
+double kfcv(Eigen::MatrixXd dataset, int K, std::vector<int> (*classifier) (Eigen::MatrixXd train, int train_size, Eigen::MatrixXd validation, int validation_size, int optimal_parameter, double (*distance_function) (Eigen::VectorXd a, Eigen::VectorXd b, int length)))
 {
 	/* Returns std::vector of error statistics from run of cross validation using given error function and classification function. */
 
@@ -124,8 +127,10 @@ double kfcv(Eigen::MatrixXd dataset, int K, std::vector<int> (*classifier) (Eige
 			truth_labels.push_back(validation.coeff(i,0));
 		}	
 
-		std::vector<int> predictions = classifier(train,validation,K);
-		double error = error_function(predictions,truth_labels);
+		std::vector<int> predictions = classifier(train,train.rows(),validation,validation.rows(),K,&EuclideanDistance);
+
+		// EuclideanDistance
+		double error = misclassification_rate(predictions,truth_labels);
 		total_error += error;
 	}
 
