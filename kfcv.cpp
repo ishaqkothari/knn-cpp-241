@@ -1,6 +1,7 @@
 #include <iostream>
 #include <vector>
 #include <iterator>
+#include <random>
 #include "includes/eigen3/Eigen/Dense"
 #include "includes/eigen3/Eigen/StdVector"
 
@@ -75,7 +76,7 @@ std::vector<Eigen::Matrix<double,Eigen::Dynamic,Eigen::Dynamic>, Eigen::aligned_
 // double (*distance_function) (Eigen::VectorXd a, Eigen::VectorXd b, int length),
 // std::vector<int> predictions = knn(test, test.rows(), train, train.rows(), K, *&distance_function);
 
-double kfcv(Eigen::MatrixXd dataset, int K, classifier, (*classifier) (Eigen::MatrixXd train, Eigen::MatrixXd validation, int optimal_parameter), (*error_function) (std::vector<int> labels, std::vector<int> ground_truth_labels))
+double kfcv(Eigen::MatrixXd dataset, int K, std::vector<int> (*classifier) (Eigen::MatrixXd train, Eigen::MatrixXd validation, int optimal_parameter), double (*error_function) (std::vector<int> labels, std::vector<int> ground_truth_labels))
 {
 	/* Returns std::vector of error statistics from run of cross validation using given error function and classification function. */
 
@@ -90,8 +91,8 @@ double kfcv(Eigen::MatrixXd dataset, int K, classifier, (*classifier) (Eigen::Ma
 		int length = dataset.rows() / K;
 		int place = 0;
 
-		Eigen::MatrixXd validation(length * (K-1),dataset.cols());
-		Eigen::MatrixXd train(length * 1,dataset.cols());
+		Eigen::MatrixXd validation(length * 1,dataset.cols());
+		Eigen::MatrixXd train(length * (K-1),dataset.cols());
 
 		for(auto v : folds)
 		{
@@ -118,12 +119,10 @@ double kfcv(Eigen::MatrixXd dataset, int K, classifier, (*classifier) (Eigen::Ma
 
 		idx = 0;
 
-		for(auto v : validation)
+		for(int i = 0; i < validation.rows(); i++)
 		{
-			truth_labels.push_back(v.col(idx++));
+			truth_labels.push_back(validation.coeff(i,0));
 		}	
-
-
 
 		std::vector<int> predictions = classifier(train,validation,K);
 		double error = error_function(predictions,truth_labels);
