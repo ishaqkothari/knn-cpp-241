@@ -72,7 +72,10 @@ std::vector<Eigen::Matrix<double,Eigen::Dynamic,Eigen::Dynamic>, Eigen::aligned_
 	return list;
 }
 
-double kfcv(Eigen::MatrixXd dataset, int K)
+// double (*distance_function) (Eigen::VectorXd a, Eigen::VectorXd b, int length),
+// std::vector<int> predictions = knn(test, test.rows(), train, train.rows(), K, *&distance_function);
+
+double kfcv(Eigen::MatrixXd dataset, int K, classifier, (*classifier) (Eigen::MatrixXd train, Eigen::MatrixXd validation, int optimal_parameter), (*error_function) (std::vector<int> labels, std::vector<int> ground_truth_labels))
 {
 	/* Returns std::vector of error statistics from run of cross validation using given error function and classification function. */
 
@@ -80,18 +83,54 @@ double kfcv(Eigen::MatrixXd dataset, int K)
 
 	double total_error = 0;
 
+	int idx = 0;
+
 	for(int i = 0; i < K; i++)
 	{
-		// validation
-		// train
-		// predictions = classifier(train,validation,K);
-		// error = misclassification_rate(predictions,truth_labels);
-		// total_error += error;
+		int length = dataset.rows() / K;
+		int place = 0;
+
+		Eigen::MatrixXd validation(length * (K-1),dataset.cols());
+		Eigen::MatrixXd train(length * 1,dataset.cols());
+
+		for(auto v : folds)
+		{
+			if(idx != K)
+			{
+				for(int i = 0; i < length; i++)
+				{
+					train.row(place++) = v.row(i);
+				}
+			}
+
+			if(idx == K)
+			{
+				for(int i = 0; i < length; i++)
+				{
+					validation.row(place++) = v.row(i);
+				}
+			}
+
+			idx = idx + 1;
+		}
+
+		std::vector<int> truth_labels;
+
+		idx = 0;
+
+		for(auto v : validation)
+		{
+			truth_labels.push_back(v.col(idx++));
+		}	
+
+
+
+		std::vector<int> predictions = classifier(train,validation,K);
+		double error = error_function(predictions,truth_labels);
+		total_error += error;
 	}
 
-	total_error = total_error / K;
-
-	return total_error;
+	return total_error / K;
 }
 
 // compute_best_k in knn
