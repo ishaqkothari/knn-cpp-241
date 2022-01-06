@@ -91,8 +91,16 @@ double kfcv(Eigen::MatrixXd dataset, int K, std::vector<int> (*classifier) (Eige
 
 	for(int i = 0; i < K; i++)
 	{
+		printf("starting run\n");
+
+		printf("dataset rows: %d\n", dataset.rows());
+
 		int length = dataset.rows() / K;
 		int place = 0;
+
+		printf("length: %d\n",length);
+
+		// this part is having an issue now
 
 		Eigen::MatrixXd validation(length * 1,dataset.cols());
 		Eigen::MatrixXd train(length * (K-1),dataset.cols());
@@ -118,20 +126,37 @@ double kfcv(Eigen::MatrixXd dataset, int K, std::vector<int> (*classifier) (Eige
 			idx = idx + 1;
 		}
 
+		printf("created matricies\n");
+
 		std::vector<int> truth_labels;
 
 		idx = 0;
 
 		for(int i = 0; i < validation.rows(); i++)
 		{
+			printf("found row\n");
 			truth_labels.push_back(validation.coeff(i,0));
 		}	
-
+		
 		std::vector<int> predictions = classifier(train,train.rows(),validation,validation.rows(),K,&EuclideanDistance);
 
-		// EuclideanDistance
+		printf("ground truth labels: \n");
+		for(auto v : truth_labels)
+		{
+			std::cout << v << "\n";
+		}
+		
+
+		printf("predictions: \n");
+		for(auto v : predictions)
+		{
+			std::cout << v << "\n";
+		}
+
 		double error = misclassification_rate(predictions,truth_labels);
 		total_error += error;
+
+		printf("completed run\n");
 	}
 
 	return total_error / K;
@@ -317,8 +342,8 @@ int main(int argc, char **argv)
 
   // TEST
 
-  Eigen::MatrixXd train = load_csv<Eigen::MatrixXd>(argv[2]);
-  double average_error = kfcv(train,10,&knn); // 10 fold cv; argv[2] is train; knn(train,val,optimal_param)
+  Eigen::MatrixXd train = load_csv<Eigen::MatrixXd>(argv[1]);
+  double average_error = kfcv(train,10,&knn); // 10 fold cv; argv[1] is train; knn(train,val,optimal_param)
 
 
   //driver(argv[2],argv[1],K,distance_function,verbose); // UNCOMMENT ME
