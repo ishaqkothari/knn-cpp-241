@@ -118,29 +118,33 @@ void driver(std::string sys_path_test, std::string sys_path_train, double (*dist
 	printf("optimal k: %d\n\n",optimal_param_value);
   }
 
+// show optimal k parameter
 
-  if(verbose == true)
+try
+{
+	Gnuplot g1("k");
+	g1.set_xlabel("K");
+	g1.set_ylabel("Misclassification Rate");
+	//g1.set_title("error for different k values");
+	g1.set_style("points pt '*'").plot_xy(k_values,error);
+	g1.cmd("set terminal png");
+	g1.cmd("set output 'figures/misclassification_rate_across_folds.png'");
+	if(verbose == true)
   {
 
-  	// show optimal k parameter
-	
-	try
-	{
-		Gnuplot g1("k");
-		g1.set_title("error for different k values");
-		g1.set_style("points").plot_xy(k_values,error,"user-defined points 2d");
-
-		g1.showonscreen(); // window output
-		wait_for_key();	
-		//g1.reset_plot();
-
-
-	} catch(GnuplotException ge)
-	{
-		std::cout << "gnuplot error" << "\n";
-		std::cout << ge.what() << std::endl;
-	}
+  	g1.showonscreen(); // window output
+	wait_for_key();	
   }
+	
+	//g1.reset_plot();
+
+
+} catch(GnuplotException ge)
+{
+	std::cout << "gnuplot error" << "\n";
+	std::cout << ge.what() << std::endl;
+}
+  
 
   
  
@@ -257,12 +261,12 @@ int main(int argc, char **argv)
 void wait_for_key ()
 {
 #if defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__TOS_WIN__)  // every keypress registered, also arrow keys
-    std::cout << endl << "Press any key to continue..." << std::endl;
+    std::cout << "Press any key to continue..." << std::endl;
 
     FlushConsoleInputBuffer(GetStdHandle(STD_INPUT_HANDLE));
     _getch();
 #elif defined(unix) || defined(__unix) || defined(__unix__) || defined(__APPLE__)
-    std::cout << std::endl << "Press ENTER to continue..." << std::endl;
+    std::cout << "Press ENTER to continue..." << std::endl;
 
     std::cin.clear();
     std::cin.ignore(std::cin.rdbuf()->in_avail());
