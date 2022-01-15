@@ -31,7 +31,29 @@ To run this program in verbose mode, please run:
 ```
 
 
-## Install
+## Prerequisites
+Before installing knn-cli, you must have installed gnuplot to your computer. To do so, here are the appropriate package manager commands for various operating systems.
+
+Arch Linux
+
+```
+sudo pacman -S gnuplot
+```
+
+Ubuntu
+
+```
+sudo apt-get install gnuplot
+```
+
+Mac
+
+```
+brew install gnuplot
+```
+
+
+## Installation
 To install this program to your posix standard system, please run the following.
 
 ```

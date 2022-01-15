@@ -1,12 +1,26 @@
 #include <iostream>
+#include <iterator>
 #include <vector>
 #include <cmath>
 #include <fstream>
 #include <algorithm>
 #include <sstream>
+#include "includes/gnuplot_i.hpp" 
 #include "includes/eigen3/Eigen/Dense"
 #include "includes/utils.h"
 #include "includes/knn.h"
+#include "includes/kfcv.h"
+
+#if defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__TOS_WIN__)
+ #include <conio.h>   //for getch(), needed in wait_for_key()
+ #include <windows.h> //for Sleep()
+ void sleep(int i) { Sleep(i*1000); }
+#endif
+
+#define SLEEP_LGTH 2  // sleep time in seconds
+#define NPOINTS    50 // length of array
+
+void wait_for_key(); // Programm halts until keypress
 
 /* Nathan Englehart, Xuhang Cao, Samuel Topper, Ishaq Kothari (Autumn 2021) */
 
@@ -20,19 +34,24 @@ template<typename T> T load_csv(const std::string & sys_path)
   std::string line;
   std::vector<double> values;
   uint rows = 0;
-  while (std::getline(in, line)) {
+
+  while(std::getline(in, line))
+  {
       std::stringstream lineStream(line);
       std::string cell;
-      while (std::getline(lineStream, cell, ',')) {
+
+      while(std::getline(lineStream, cell, ','))
+      {
           values.push_back(std::stod(cell));
       }
+
       rows = rows + 1;
   }
 
   return Eigen::Map<const Eigen::Matrix<typename T::Scalar, T::RowsAtCompileTime, T::ColsAtCompileTime, Eigen::RowMajor>>(values.data(), rows, values.size()/rows);
 }
 
-void driver(std::string sys_path_test, std::string sys_path_train, int K, double (*distance_function) (Eigen::VectorXd a, Eigen::VectorXd b, int length), bool verbose)
+void driver(std::string sys_path_test, std::string sys_path_train, double (*distance_function) (Eigen::VectorXd a, Eigen::VectorXd b, int length), bool verbose)
 {
 
   /* Driver for a k nearest neighbors classifier. */
@@ -42,40 +61,102 @@ void driver(std::string sys_path_test, std::string sys_path_train, int K, double
 
   if(verbose == true)
   {
-    std::cout << "K = " << K << "\n";
-  }
-
-  if(K > train.rows())
-  {
-    std::cout << "Invalid K value. K must not exceed train dataset length.\n";
-    exit(1);
+      std::cout << "train data filepath: " << sys_path_train << "\n";
   }
 
   if(verbose == true)
   {
-      std::cout << "Train data filepath: " << sys_path_train << "\n";
-      //std::cout << "Train Data: " << sys_path_train << "\n";
-      //std::cout << train << "\n\n";
+      std::cout << "test data filepath: " << sys_path_test << "\n\n";
   }
+
+  // use 10 fold cross validation to find optimal K parameter
+
+  std::vector<double> error;
+
+  int num_folds = 10;
+
+  for(int i = 1; i < (train.rows()/num_folds)*(num_folds-1); i+=2)
+  {
+  	if(verbose == true)
+	{
+  		printf("computing error for k=%d",i);
+	}
+
+	double result = kfcv(train,num_folds,&knn,i,*&distance_function);
+	error.push_back(result);
+
+	if(verbose == true)
+	{
+		printf(" -> %f\n", result);
+  	}
+  }
+
+  double min_error = error.front();
+  int optimal_param_value = 1;
+  int curr_param_value = 1;
+
+  std::vector<int> k_values;
+
+  for(auto v : error)
+  {
+
+	k_values.push_back(curr_param_value);
+
+	if(v < min_error)
+	{
+		min_error = v;
+		optimal_param_value = curr_param_value;
+	}
+
+	curr_param_value += 2;
+  }
+
 
   if(verbose == true)
   {
-      std::cout << "Test data filepath: " << sys_path_test << "\n";
-      //std::cout << "Test Data: " << sys_path_test << "\n";
-      //std::cout << test << "\n\n";
+	printf("\nmin error: %f\n",min_error);
+	printf("optimal k: %d\n\n",optimal_param_value);
   }
 
-  std::vector<int> predictions = knn(test, test.rows(), train, train.rows(), K, *&distance_function);
+
+  if(verbose == true)
+  {
+
+  	// show optimal k parameter
+	
+	try
+	{
+		Gnuplot g1("k");
+		g1.set_title("error for different k values");
+		g1.set_style("points").plot_xy(k_values,error,"user-defined points 2d");
+
+		g1.showonscreen(); // window output
+		wait_for_key();	
+		//g1.reset_plot();
+
+
+	} catch(GnuplotException ge)
+	{
+		std::cout << "gnuplot error" << "\n";
+		std::cout << ge.what() << std::endl;
+	}
+  }
+
+  
+ 
+
+  // run knn with optimal K parameter
+
+  std::vector<int> predictions = knn(test, test.rows(), train, train.rows(), optimal_param_value, *&distance_function);
 
   if(verbose == true)
   {
     int count = 0;
     for(auto v : predictions)
     {
-        std::cout << "Vector " << count << " Classification = " << v << "\n";
+        std::cout << "vector " << count << " classification = " << v << "\n";
         count++;
     }
-    std::cout << "\n";
   }
 }
 
@@ -84,7 +165,6 @@ int main(int argc, char **argv)
 
   /* Default parameters are K = 1, distance function is set to Euclidean Distance, and verbose is set to false. */
 
-  int K = 1;
   auto distance_function = &EuclideanDistance;
   bool verbose = false;
 
@@ -143,28 +223,6 @@ int main(int argc, char **argv)
       } else if(argv[counter][0] == '-' && argv[counter][1] == 'c' && argv[counter][2] == '\0')
       {
         distance_function = &ChebyshevDistance;
-      } else if(argv[counter][0] == '-' && argv[counter][1] == 'k' && argv[counter][2] == '\0')
-      {
-        if(argv[counter + 1] != NULL)
-        {
-          if(is_digits(argv[counter + 1]))
-          {
-            std::stringstream converter(argv[counter + 1]);
-            K = 0;
-            converter >> K;
-            counter = counter + 1;
-          } else
-          {
-            std::cout << "Unknown K value: " << argv[counter + 1] << "\n";
-            std::cout << "More info with: \"./knn-cli -h\"\n";
-            return 1;
-          }
-        } else
-        {
-          std::cout << "Unknown K value: \n";
-          std::cout << "More info with: \"./knn-cli -h\"\n";
-          return 1;
-        }
       } else
       {
         std::cout << "Unknown option argument: " << argv[counter] << "\n";
@@ -178,14 +236,10 @@ int main(int argc, char **argv)
       return 1;
     }
 
-
-
     counter = counter + 1;
   }
 
-
-
-  driver(argv[2],argv[1],K,distance_function,verbose);
+  driver(argv[2],argv[1],distance_function,verbose);
 
   /* [Iris-virginica] => 0 [Iris-versicolor] => 1 [Iris-setosa] => 2 */
 
@@ -198,4 +252,21 @@ int main(int argc, char **argv)
 
 
   return 0;
+}
+
+void wait_for_key ()
+{
+#if defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__TOS_WIN__)  // every keypress registered, also arrow keys
+    std::cout << endl << "Press any key to continue..." << std::endl;
+
+    FlushConsoleInputBuffer(GetStdHandle(STD_INPUT_HANDLE));
+    _getch();
+#elif defined(unix) || defined(__unix) || defined(__unix__) || defined(__APPLE__)
+    std::cout << std::endl << "Press ENTER to continue..." << std::endl;
+
+    std::cin.clear();
+    std::cin.ignore(std::cin.rdbuf()->in_avail());
+    std::cin.get();
+#endif
+    return;
 }
