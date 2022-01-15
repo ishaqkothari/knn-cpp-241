@@ -5,17 +5,24 @@
 #include <fstream>
 #include <algorithm>
 #include <sstream>
+#include "includes/gnuplot_i.hpp" 
 #include "includes/eigen3/Eigen/Dense"
 #include "includes/utils.h"
 #include "includes/knn.h"
 #include "includes/kfcv.h"
 
-/* Nathan Englehart, Xuhang Cao, Samuel Topper, Ishaq Kothari (Autumn 2021) */
+#if defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__TOS_WIN__)
+ #include <conio.h>   //for getch(), needed in wait_for_key()
+ #include <windows.h> //for Sleep()
+ void sleep(int i) { Sleep(i*1000); }
+#endif
 
-int func()
-{
-	return 0;
-}
+#define SLEEP_LGTH 2  // sleep time in seconds
+#define NPOINTS    50 // length of array
+
+void wait_for_key(); // Programm halts until keypress
+
+/* Nathan Englehart, Xuhang Cao, Samuel Topper, Ishaq Kothari (Autumn 2021) */
 
 template<typename T> T load_csv(const std::string & sys_path)
 {
@@ -88,8 +95,13 @@ void driver(std::string sys_path_test, std::string sys_path_train, double (*dist
   int optimal_param_value = 1;
   int curr_param_value = 1;
 
+  std::vector<int> k_values;
+
   for(auto v : error)
   {
+
+	k_values.push_back(curr_param_value);
+
 	if(v < min_error)
 	{
 		min_error = v;
@@ -105,6 +117,33 @@ void driver(std::string sys_path_test, std::string sys_path_train, double (*dist
 	printf("\nmin error: %f\n",min_error);
 	printf("optimal k: %d\n\n",optimal_param_value);
   }
+
+
+  if(verbose == true)
+  {
+
+  	// show optimal k parameter
+	
+	try
+	{
+		Gnuplot g1("k");
+		g1.set_title("error for different k values");
+		g1.set_style("points").plot_xy(k_values,error,"user-defined points 2d");
+
+		g1.showonscreen(); // window output
+		wait_for_key();	
+		//g1.reset_plot();
+
+
+	} catch(GnuplotException ge)
+	{
+		std::cout << "gnuplot error" << "\n";
+		std::cout << ge.what() << std::endl;
+	}
+  }
+
+  
+ 
 
   // run knn with optimal K parameter
 
@@ -213,4 +252,21 @@ int main(int argc, char **argv)
 
 
   return 0;
+}
+
+void wait_for_key ()
+{
+#if defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__TOS_WIN__)  // every keypress registered, also arrow keys
+    std::cout << endl << "Press any key to continue..." << std::endl;
+
+    FlushConsoleInputBuffer(GetStdHandle(STD_INPUT_HANDLE));
+    _getch();
+#elif defined(unix) || defined(__unix) || defined(__unix__) || defined(__APPLE__)
+    std::cout << std::endl << "Press ENTER to continue..." << std::endl;
+
+    std::cin.clear();
+    std::cin.ignore(std::cin.rdbuf()->in_avail());
+    std::cin.get();
+#endif
+    return;
 }
