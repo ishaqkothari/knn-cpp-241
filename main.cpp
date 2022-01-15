@@ -127,8 +127,8 @@ try
 	g1.set_ylabel("Misclassification Rate");
 	//g1.set_title("error for different k values");
 	g1.set_style("points pt '*'").plot_xy(k_values,error);
-	g1.cmd("set terminal png");
-	g1.cmd("set output 'figures/misclassification_rate_across_folds.png'");
+	//g1.cmd("set terminal png");
+	//g1.cmd("set output 'figures/misclassification_rate_across_folds.png'");
 	if(verbose == true)
   {
 
