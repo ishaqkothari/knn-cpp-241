@@ -78,9 +78,13 @@ sudo rm /usr/local/bin/knn-cli
 ```
 
 ## Notes
-This is currently a work in progress. We are currently including the eigen3 linear algebra library folder within this program. Note that example datasets are supplied in the data folder, e.g. iris.csv.
+This is currently a work in progress. We are currently including the eigen3 linear algebra library folder within this program. Note that example datasets from the UCI machine learning repository are supplied in the data folder, e.g. data/iris/iris.csv.
 
 ## References
 David Barber, [Bayesian Reasoning and Machine Learning](http://web4.cs.ucl.ac.uk/staff/D.Barber/textbook/171216.pdf), 2016. (pp. 313-317) <br>
 
+Dua, D. and Graff, C. (2019). UCI Machine Learning Repository [http://archive.ics.uci.edu/ml](http://archive.ics.uci.edu/ml). Irvine, CA: University of California, School of Information and Computer Science.
+
 Mark Girolami and Simon Rogers, [First Couse in Machine Learning - second edition](http://www.dcs.gla.ac.uk/~srogers/firstcourseml/), 2011.
+
+
