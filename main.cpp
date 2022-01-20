@@ -11,18 +11,21 @@
 #include "includes/knn.h"
 #include "includes/kfcv.h"
 
-#if defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__TOS_WIN__)
- #include <conio.h>   //for getch(), needed in wait_for_key()
- #include <windows.h> //for Sleep()
- void sleep(int i) { Sleep(i*1000); }
-#endif
-
-#define SLEEP_LGTH 2  // sleep time in seconds
-#define NPOINTS    50 // length of array
-
-void wait_for_key(); // Programm halts until keypress
-
 /* Nathan Englehart, Xuhang Cao, Samuel Topper, Ishaq Kothari (Autumn 2021) */
+
+void wait_for_key()
+{
+    
+    /* Pauses program util keypress. */
+	
+	
+    std::cout << "Press ENTER to continue..." << std::endl;
+
+    std::cin.clear();
+    std::cin.ignore(std::cin.rdbuf()->in_avail());
+    std::cin.get();
+
+}
 
 template<typename T> T load_csv(const std::string & sys_path)
 {
@@ -256,21 +259,4 @@ int main(int argc, char **argv)
 
 
   return 0;
-}
-
-void wait_for_key ()
-{
-#if defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__TOS_WIN__)  // every keypress registered, also arrow keys
-    std::cout << "Press any key to continue..." << std::endl;
-
-    FlushConsoleInputBuffer(GetStdHandle(STD_INPUT_HANDLE));
-    _getch();
-#elif defined(unix) || defined(__unix) || defined(__unix__) || defined(__APPLE__)
-    std::cout << "Press ENTER to continue..." << std::endl;
-
-    std::cin.clear();
-    std::cin.ignore(std::cin.rdbuf()->in_avail());
-    std::cin.get();
-#endif
-    return;
 }
