@@ -44,7 +44,7 @@ sudo pacman -S gnuplot
 Ubuntu
 
 ```
-sudo apt-get install boost
+sudo apt-get install libboost-all-dev
 sudo apt-get install gnuplot
 ```
 
