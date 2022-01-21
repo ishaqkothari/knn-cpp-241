@@ -77,8 +77,11 @@ void driver(std::string sys_path_test, std::string sys_path_train, double (*dist
   std::vector<double> error;
 
   int num_folds = 10;
+  
+  // int num_k_values = (train.rows()/num_folds)*(num_folds-1);
+  int num_k_values = 30;
 
-  for(int i = 1; i < (train.rows()/num_folds)*(num_folds-1); i+=2)
+  for(int i = 1; i < num_k_values; i+=2)
   {
   	if(verbose == true)
 	{
