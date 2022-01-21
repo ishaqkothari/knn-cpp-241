@@ -52,6 +52,8 @@ template<typename T> T load_csv(const std::string & sys_path)
   }
 
   return Eigen::Map<const Eigen::Matrix<typename T::Scalar, T::RowsAtCompileTime, T::ColsAtCompileTime, Eigen::RowMajor>>(values.data(), rows, values.size()/rows);
+
+   /* based on code from https://stackoverflow.com/questions/34247057/how-to-read-csv-file-and-assign-to-eigen-matrix/39146048 */
 }
 
 void driver(std::string sys_path_test, std::string sys_path_train, double (*distance_function) (Eigen::VectorXd a, Eigen::VectorXd b, int length), bool verbose)
