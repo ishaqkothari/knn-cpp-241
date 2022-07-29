@@ -18,10 +18,21 @@ The program is meant to be run as the below, where train and test are the paths 
 ./knn-cli [train] [test] [options...]
 ```
 
-For a help menu, please run:
+A help menu is avaiable by running:
 
 ```bash
 ./knn-cli -h
+K Nearest Neighbors Cli (2021 Dec 9, compiled Fri Jul 29 18:18:59 2022 18:19:01)
+
+usage: ./knn-cli [train] [test] [options ..]    read in train csv and test csv files from filesystem
+   or: ./knn-cli -h                             displays help menu
+
+Arguments:
+   -h     Displays help menu
+   -v     Displays output in verbose mode
+   -e     Runs algorithm using the Euclidean Distance formula
+   -m     Runs algorithm using the Manhattan Distance formula
+   -c     Runs algorithm using the Chebyshev Distance formula
 ```
 
 To run this program in verbose mode, please run:
@@ -60,7 +71,7 @@ brew install gnuplot
 To install this program to your posix standard system, please run the following.
 
 ```bash
-git clone git clone https://github.com/nathanenglehart/knn-cpp-241
+git clone https://github.com/nathanenglehart/knn-cpp-241
 cd knn-cpp-241
 make
 sudo cp knn-cli /usr/local/bin/knn-cli
