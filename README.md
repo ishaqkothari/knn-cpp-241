@@ -22,6 +22,10 @@ A help menu is avaiable by running:
 
 ```bash
 ./knn-cli -h
+```
+
+which displays:
+```
 K Nearest Neighbors Cli (2021 Dec 9, compiled Fri Jul 29 18:18:59 2022 18:19:01)
 
 usage: ./knn-cli [train] [test] [options ..]    read in train csv and test csv files from filesystem
