@@ -45,31 +45,26 @@ To run this program in verbose mode, please run:
 ./knn-cli [train] [test] -v 
 ```
 
-
 ## Prerequisites
 Before installing knn-cli, you must have installed gnuplot and boost on your computer. To do so, here are the appropriate package manager commands for various unix-based operating systems.
 
 Arch Linux
 
 ```bash
-sudo pacman -S boost
-sudo pacman -S gnuplot
+sudo pacman -S boost gnuplot
 ```
 
 Ubuntu
 
 ```bash
-sudo apt-get install libboost-all-dev
-sudo apt-get install gnuplot
+sudo apt-get install libboost-all-dev gnuplot
 ```
 
 Mac
 
 ```bash
-brew install boost
-brew install gnuplot
+brew install boost gnuplot
 ```
-
 
 ## Installation
 To install this program to your posix standard system, please run the following.
